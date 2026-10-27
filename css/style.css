@@ -6,7 +6,7 @@
   --paper-2:    #faf8f3;
   --ink:        #1b1a17;
   --ink-2:      #46423b;
-  --ink-3:      #837c70;
+  --ink-3:      #6f6960;
   --line:       #ddd6c9;
   --line-2:     #e8e2d6;
   --gold:       #a9762c;
@@ -706,3 +706,16 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .end-duel .win { color: var(--gold); font-weight: 600; }
 .end-duel .lose { color: var(--ink-3); }
 .end-duel .vs { font-family: var(--mono); font-size: 11px; color: var(--ink-3); margin: 0 8px; }
+
+/* ---------- 细节打磨 ---------- */
+/* 小屏上把控制条和关闭按钮的触控区放大，避免点不准 */
+@media (max-width: 760px) {
+  .logbar { height: 52px; padding: 0 14px; }
+  .speed { padding: 3px; }
+  .speed button { padding: 7px 10px; font-size: 11.5px; }
+  .ctrl { width: 38px; height: 38px; }
+  .ctrl svg { width: 15px; height: 15px; }
+  .card-x { width: 36px; height: 36px; font-size: 13px; }
+  #btnLang { padding: 8px 12px; }
+  .ccard .card-x { top: 10px; right: 10px; }
+}

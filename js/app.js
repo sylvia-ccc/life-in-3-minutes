@@ -260,6 +260,10 @@ function fmtBig(n) {
   if (n >= 1e4) return (n / 1e3).toFixed(0) + 'k';
   return fmtInt(n);
 }
+/* 稀有度太低的组合写「1 / 1」很怪，直接不显示比值，只留定性标签 */
+function rarityText(r) {
+  return r < 10 ? '' : rarityStr(r) + ' ';
+}
 function rarityStr(r) {
   if (r >= 1e8) return '1 / ' + (lang === 'zh' ? (r / 1e8).toFixed(1) + '亿' : (r / 1e9).toFixed(2) + 'B');
   if (r >= 1e4) return '1 / ' + fmtInt(r);
@@ -415,9 +419,14 @@ function renderBirth() {
   });
 
   const r = s.birthRarity;
-  $('bcRarity').innerHTML = lang === 'zh'
-    ? '这个组合在地球上出现的概率约为 <b>' + rarityStr(r) + '</b><br>你抽到了这一手牌，接下来只能打下去。'
-    : 'The odds of this exact start were about <b>' + rarityStr(r) + '</b><br>You were dealt these cards. Now you play them.';
+  const rarLead = r < 10
+    ? ''
+    : (lang === 'zh'
+      ? '这个组合在地球上出现的概率约为 <b>' + rarityStr(r) + '</b><br>'
+      : 'The odds of this exact start were about <b>' + rarityStr(r) + '</b><br>');
+  $('bcRarity').innerHTML = rarLead + (lang === 'zh'
+    ? '你抽到了这一手牌，接下来只能打下去。'
+    : 'You were dealt these cards. Now you play them.');
 }
 
 function beginLife() {
@@ -785,8 +794,8 @@ function renderEnd() {
   const sim = s.similar, rar = s.rarity;
   const qual = rar >= 1e6 ? t('veryRare') : rar >= 1e4 ? t('rare') : rar >= 500 ? t('uncommon') : t('common');
   $('endRarity').innerHTML =
-    '<div><div class="k">' + t('rarityK') + '</div><div class="v">' + rarityStr(rar) +
-      ' <em class="qual">' + qual + '</em></div></div>' +
+    '<div><div class="k">' + t('rarityK') + '</div><div class="v">' + rarityText(rar) +
+      '<em class="qual">' + qual + '</em></div></div>' +
     '<div><div class="k">' + t('similarK') + '</div><div class="v">' +
       (sim < 1 ? t('onlyYou') : fmtBig(sim) + (lang === 'zh' ? ' 人' : '')) + '</div></div>' +
     '<div style="grid-column:1/-1"><div class="k">' + t('overall') + '</div>' +
