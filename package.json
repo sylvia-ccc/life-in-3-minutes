@@ -1,0 +1,20 @@
+{
+  "name": "life-in-3-minutes",
+  "version": "1.0.0",
+  "private": true,
+  "description": "随机投胎到一个国家，三分钟看完一生 —— 纯前端人生模拟器",
+  "homepage": "https://game.workagentpro.com",
+  "scripts": {
+    "build": "node tools/build.js",
+    "sim": "node tools/sim.js 40000",
+    "shot": "node tools/shot.js",
+    "shot:mobile": "node tools/shot-m.js",
+    "shot:dist": "node tools/shot-dist.js",
+    "card": "node tools/card.js",
+    "check:track": "node tools/verify-track.js"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.49.0"
+  },
+  "license": "SEE LICENSE IN LICENSE"
+}

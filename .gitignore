@@ -1,0 +1,8 @@
+node_modules/
+.DS_Store
+shots/
+*.log
+
+# 统计服务的本地数据与盐，不要提交
+server/data/
+server/.salt

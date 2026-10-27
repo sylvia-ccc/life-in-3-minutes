@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    width:1200px;height:630px;overflow:hidden;position:relative;
+    background:#f4f1ea;color:#1b1a17;
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  }
+  .glow1{position:absolute;left:-120px;top:-160px;width:760px;height:760px;border-radius:50%;
+    background:radial-gradient(circle,rgba(169,118,44,.16),transparent 62%)}
+  .glow2{position:absolute;right:-180px;bottom:-220px;width:780px;height:780px;border-radius:50%;
+    background:radial-gradient(circle,rgba(63,116,85,.13),transparent 62%)}
+  .frame{position:absolute;inset:34px;border:2.5px solid rgba(27,26,23,.20)}
+  .frame::after{content:'';position:absolute;inset:11px;border:1px solid rgba(169,118,44,.40)}
+  .wrap{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;
+    padding:0 104px 96px}
+  .kicker{font-size:13px;letter-spacing:.42em;color:#837c70;margin-bottom:22px}
+  h1{font-family:"Songti SC","STSong","Noto Serif SC",Georgia,serif;font-size:82px;font-weight:600;
+    letter-spacing:.06em;line-height:1.12}
+  h1 em{font-style:normal;color:#a9762c}
+  .sub{font-family:"Songti SC",Georgia,serif;font-size:26px;color:#46423b;margin-top:18px;letter-spacing:.14em}
+  .lead{font-size:19px;color:#46423b;line-height:1.95;margin-top:30px;max-width:640px}
+  .lead b{color:#1b1a17;font-weight:600}
+  .stats{display:flex;gap:26px;margin-top:34px;font-size:14px;color:#837c70;letter-spacing:.08em}
+  .stats b{color:#1b1a17;font-weight:600;font-size:17px;margin-right:4px}
+  .badge{position:absolute;right:104px;top:50%;transform:translateY(-50%);width:250px;text-align:center}
+  .badge .g{font-family:"Songti SC",Georgia,serif;font-size:180px;line-height:.9;color:#a9762c}
+  .badge .l{font-size:12px;letter-spacing:.3em;color:#837c70;margin-top:14px}
+  .url{position:absolute;left:104px;bottom:72px;font-size:15px;color:#a9762c;letter-spacing:.12em}
+</style></head><body>
+  <div class="glow1"></div><div class="glow2"></div><div class="frame"></div>
+  <div class="wrap">
+    <div class="kicker">A LIFE SIMULATOR</div>
+    <h1>你出生在<em>哪里</em><br>从来由不得你</h1>
+    <div class="sub">模拟人生 · 3 分钟看完一生</div>
+    <div class="lead">随机投胎到一个国家，随机拿到一副身体、一个家庭。<br>
+      从赤贫到顶级富豪，<b>七层命运</b>，每一局都不一样。</div>
+    <div class="stats">
+      <span><b>120</b>个国家</span>
+      <span><b>376</b>个人生事件</span>
+      <span><b>64</b>次抉择</span>
+    </div>
+  </div>
+  <div class="badge">
+    <div class="g">命</div>
+    <div class="l">FATE ARCHIVE</div>
+  </div>
+  <div class="url">game.workagentpro.com</div>
+</body></html>

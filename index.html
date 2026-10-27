@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>模拟人生-3分钟看完一生</title>
+<meta name="description" content="随机投胎到一个国家，三分钟看完一生。120 个国家、376 个人生事件、7 层命运阶层，从赤贫到顶级富豪，中英双语人生模拟游戏。">
+<meta name="theme-color" content="#f4f1ea">
+<meta property="og:type" content="website">
+<meta property="og:title" content="模拟人生-3分钟看完一生">
+<meta property="og:description" content="随机投胎到一个国家，三分钟看完一生。120 个国家、376 个人生事件、7 层命运阶层，从赤贫到顶级富豪。">
+<meta property="og:url" content="https://game.workagentpro.com/">
+<meta property="og:image" content="https://game.workagentpro.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="模拟人生 · 3 分钟看完一生">
+<meta property="og:site_name" content="模拟人生">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://game.workagentpro.com/og.png">
+<meta name="twitter:title" content="模拟人生-3分钟看完一生">
+<meta name="twitter:description" content="随机投胎到一个国家，三分钟看完一生。">
+<link rel="stylesheet" href="css/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌍</text></svg>">
+</head>
+<body>
+<div id="app">
+
+  <div class="topbar">
+    <div class="brand">
+      <h1 id="brandTitle">模拟人生</h1>
+      <span id="brandSub">3 分钟看完一生</span>
+    </div>
+    <div class="spacer"></div>
+    <button class="tbtn" id="btnGallery"><span id="galLabel">命运图鉴</span></button>
+    <button class="tbtn" id="btnLang">EN</button>
+  </div>
+
+  <div class="stage">
+
+    <!-- 开始 -->
+    <section class="screen start active" id="scrStart">
+      <div class="start-inner">
+        <div class="orn">✦</div>
+        <div class="worldline">
+          <span id="wl1">地球上现有</span>
+          <b id="worldPop">8,000,000,000</b>
+          <span id="wl2">人</span>
+        </div>
+        <h2 id="startTitle">你出生在<br><em>哪里</em>，从来由不得你</h2>
+        <div class="sub" id="startSub">A LIFE SIMULATOR</div>
+        <p class="lead" id="startLead">
+          随机投胎到一个国家，随机拿到一副身体、一个家庭。<br>
+          然后几十年，几万天，眨眼就过去。<br>
+          有人三分钟走完一生，有人要一个小时。
+        </p>
+        <button class="btn-primary" id="btnStart">
+          <span id="startBtn">投 胎</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+        <button class="btn-daily" id="btnDaily">
+          <b id="dailyBtn">今日之命</b>
+          <span id="dailySub">今天所有人投的是同一个胎</span>
+        </button>
+        <div class="streak" id="streak"></div>
+        <div class="hint" id="startHint">
+          按 <kbd>空格</kbd> 暂停 · <kbd>R</kbd> 重新投胎 · 每一局都不一样
+        </div>
+        <div class="meta-strip" id="metaStrip"></div>
+      </div>
+    </section>
+
+    <!-- 出生卡 -->
+    <section class="screen birth" id="scrBirth">
+      <div class="birth-card">
+        <div class="bc-label" id="bcLabel">出 生 证 明</div>
+        <div class="bc-flag" id="bcFlag">🇨🇳</div>
+        <div class="bc-country" id="bcCountry">中国</div>
+        <div class="bc-region" id="bcRegion">东亚 · 人口 14.1 亿</div>
+        <div class="bc-name" id="bcName">王 伟</div>
+        <div class="bc-grid">
+          <div class="bc-cell">
+            <div class="k" id="bcFamilyK">家庭</div>
+            <div class="v" id="bcFamilyV">小康</div>
+            <div class="d" id="bcFamilyD">不富裕但稳定</div>
+          </div>
+          <div class="bc-cell">
+            <div class="k" id="bcEduK">教育体系</div>
+            <div class="v" id="bcEduV">应试教育</div>
+            <div class="d" id="bcEduD">高考决定很多事</div>
+          </div>
+          <div class="bc-cell">
+            <div class="k" id="bcLifeK">预期寿命</div>
+            <div class="v" id="bcLifeV">78 岁</div>
+            <div class="d" id="bcLifeD"></div>
+          </div>
+          <div class="bc-cell">
+            <div class="k" id="bcGdpK">人均产出</div>
+            <div class="v" id="bcGdpV">$12,700</div>
+            <div class="d" id="bcGdpD"></div>
+          </div>
+        </div>
+        <div class="traits" id="bcTraits"></div>
+        <div class="rarity-line" id="bcRarity"></div>
+        <div class="bc-actions">
+          <button class="btn-primary" id="btnBegin"><span id="beginBtn">开始这一生</span></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 游戏 -->
+    <section class="screen play" id="scrPlay">
+      <aside class="side">
+        <div class="who">
+          <div class="flag" id="pFlag">🇨🇳</div>
+          <div>
+            <div class="nm" id="pName">王 伟</div>
+            <div class="ct" id="pCountry">中国</div>
+          </div>
+        </div>
+        <div class="agebox">
+          <span class="n" id="pAge">0</span>
+          <span class="u" id="pAgeUnit">岁</span>
+          <span class="stage-name" id="pStage"></span>
+        </div>
+        <div class="stats">
+          <div class="stat"><div class="row"><span id="sHp">体质</span><span class="val" id="sHpV">60</span></div><div class="bar hp"><i id="bHp" style="width:60%"></i></div></div>
+          <div class="stat"><div class="row"><span id="sIq">智力</span><span class="val" id="sIqV">50</span></div><div class="bar iq"><i id="bIq" style="width:50%"></i></div></div>
+          <div class="stat"><div class="row"><span id="sAp">颜值</span><span class="val" id="sApV">50</span></div><div class="bar ap"><i id="bAp" style="width:50%"></i></div></div>
+          <div class="stat"><div class="row"><span id="sJy">快乐</span><span class="val" id="sJyV">60</span></div><div class="bar jy"><i id="bJy" style="width:60%"></i></div></div>
+        </div>
+        <div class="facts" id="pFacts"></div>
+      </aside>
+      <div class="maincol">
+        <div class="logbar">
+          <span id="logTitle">人 生 记 录</span>
+          <span class="spacer"></span>
+          <div class="speed">
+            <button data-sp="1" class="on">1×</button>
+            <button data-sp="2">2×</button>
+            <button data-sp="4">4×</button>
+            <button data-sp="12">12×</button>
+          </div>
+          <button class="ctrl" id="btnPause" title="暂停">
+            <svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
+          </button>
+        </div>
+        <div class="log" id="log"><div class="log-inner" id="logInner"></div></div>
+      </div>
+    </section>
+
+    <!-- 结局 -->
+    <section class="screen end" id="scrEnd">
+      <div class="end-card">
+        <div class="end-alt" id="endAlt"></div>
+        <div class="end-head">
+          <div class="end-grade" id="endGrade">A</div>
+          <div class="end-epitaph" id="endEpitaph"></div>
+          <div class="delta-row" id="endDelta"></div>
+          <div class="tag-row" id="endTags"></div>
+          <div class="end-daily" id="endDaily"></div>
+          <div class="rarity-big" id="endRarity"></div>
+        </div>
+        <div class="end-grid" id="endGrid"></div>
+        <div class="ach-row" id="endAch"></div>
+        <div class="forks" id="endForks">
+          <h4 id="forkTitle">未 走 的 路</h4>
+          <div id="forkList"></div>
+        </div>
+        <div class="highlights">
+          <h4 id="hlTitle">这一生的几个瞬间</h4>
+          <div id="hlList"></div>
+          <button class="btn-ghost" id="btnFullLog" style="margin-top:14px"><span id="fullLogBtn">查看完整记录</span></button>
+          <div class="full-log" id="fullLog"></div>
+        </div>
+        <div class="end-next" id="endNext"></div>
+        <div class="end-actions">
+          <button class="btn-primary" id="btnAgain"><span id="againBtn">再投一次胎</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5"/></svg>
+          </button>
+          <button class="btn-ghost" id="btnSame"><span id="sameBtn">在这一国再活一次</span></button>
+          <button class="btn-ghost" id="btnShare"><span id="shareBtn">复制这一生</span></button>
+          <button class="btn-ghost" id="btnCard"><span id="cardBtn">人生卡片</span></button>
+          <button class="btn-ghost" id="btnGal2"><span id="gal2Btn">命运图鉴</span></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 图鉴 -->
+    <section class="screen gallery" id="scrGallery">
+      <div class="gal-inner">
+        <div class="gal-head">
+          <h2 id="gTitle">命运图鉴</h2>
+          <span class="cnt" id="gCount"></span>
+          <span class="nowtitle" id="gNow"></span>
+          <span class="spacer"></span>
+          <button class="btn-ghost" id="btnBack"><span id="backBtn">返回</span></button>
+        </div>
+        <div class="galprog"><i id="gProg"></i></div>
+        <div class="galhint" id="gHint"></div>
+        <h3 class="gal-sub" id="gMilesTitle">收 集 称 号</h3>
+        <div class="miles" id="gMiles"></div>
+        <h3 class="gal-sub" id="gFlagsTitle">国 家 图 鉴</h3>
+        <div class="flags" id="gFlags"></div>
+        <div class="bests" id="gBests"></div>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="overlay" id="ovChoice">
+    <div class="choice">
+      <div class="ck" id="ckLabel">命 运 岔 路</div>
+      <h3 id="ckText"></h3>
+      <div id="ckOpts"></div>
+    </div>
+  </div>
+
+  <!-- 人生卡片 -->
+  <div class="overlay cardov" id="ovCard">
+    <div class="cardwrap">
+      <div class="card-top">
+        <span class="ct" id="cardTitle">人 生 卡 片</span>
+        <span class="spacer"></span>
+        <button class="card-x" id="cardClose" aria-label="close">✕</button>
+      </div>
+      <div class="card-stage">
+        <canvas id="lifeCard" width="1080" height="1440"></canvas>
+      </div>
+      <div class="card-actions">
+        <button class="btn-primary" id="btnSaveCard"><span id="cardSave">保存图片</span></button>
+        <span class="card-hint" id="cardHint">长按图片也可以直接保存</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 国家档案：从图鉴点进来，可以直接投胎到这个国家 -->
+  <div class="overlay ccov" id="ovCountry">
+    <div class="ccard">
+      <button class="card-x" id="ccClose" aria-label="close">✕</button>
+      <div class="cc-flag" id="ccFlag">🇨🇳</div>
+      <div class="cc-name" id="ccName">中国</div>
+      <div class="cc-region" id="ccRegion"></div>
+      <div class="cc-grid" id="ccGrid"></div>
+      <div class="cc-note" id="ccNote"></div>
+      <button class="btn-primary" id="ccGo"><span id="ccGoBtn">投胎到这里</span></button>
+    </div>
+  </div>
+
+  <div id="toasts"></div>
+</div>
+
+<script src="js/data-countries.js"></script>
+<script src="js/data-events.js"></script>
+<script src="js/data-dist.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
