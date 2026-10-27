@@ -225,3 +225,39 @@ npm run check:track
 - 「模拟人生」是 Electronic Arts《The Sims》系列的中文商标，本项目与 EA 无任何关系。
   个人非商业使用没有问题，但如果要商用，请自行更换名称。
 - 如果你 fork 之后做了改动，欢迎提 PR 或者告诉我一声，我会很开心。
+
+---
+
+## English
+
+**Life in 3 Minutes** — a browser life simulator with zero dependencies.
+
+You are born somewhere random: a country, a family, a body, a set of talents.
+Then time runs from age 0 to death in about three minutes, and roughly twelve decisions
+along the way actually change how the next few decades go.
+
+- **120 countries** with real population, life expectancy, GDP per capita and education systems
+- **386 life events**, 64 of which are choices
+- **7 social classes**, from destitution to dynasty — wealth inequality emerges from
+  compounding capital returns rather than random payouts
+- **Urban / rural** split with separate event pools
+- **Deterministic RNG** (mulberry32 + explicit seed), which makes replay and
+  "what if I had chosen differently" possible
+- Share card rendered on Canvas, with a pre-generated QR code
+- Optional self-hosted analytics in `server/` (Python standard library only)
+
+**Make it yours:** edit `js/config.js` (brand, URL, feature flags, storage namespace),
+swap the data in `js/data-*.js` following [CONTENT.md](CONTENT.md), then run
+`node tools/build.js`. Disabled features hide themselves; no HTML editing required.
+
+**Commands**
+
+```bash
+node tools/validate.js      # validate content data
+node --test tools/test.js   # engine invariants (11 tests)
+node tools/build.js         # bundle into a single HTML file
+node tools/sim.js 40000     # regenerate the score percentile table
+```
+
+**License:** PolyForm Noncommercial 1.0.0 — free to read, modify and fork for
+non-commercial use. Commercial use requires a separate agreement; open an issue to talk.
