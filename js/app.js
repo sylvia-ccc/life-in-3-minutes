@@ -42,14 +42,14 @@ const T = {
     cardAch: '这一生的称号', cardNone: '没有称号',
   },
   en: {
-    brand: 'Life in 3 Minutes', brandSub: '模拟人生 · 3分钟看完一生', gal: 'Archive',
+    brand: 'Life in 3 Minutes', brandSub: 'A LIFE, START TO FINISH', gal: 'Fate Archive',
     wl1: 'There are', wl2: 'people on Earth',
     startTitle: 'Where you are born<br>was never <em>your</em> choice',
     startSub: 'A LIFE SIMULATOR',
     startLead: 'A random country, a random body, a random family.<br>Then a few decades, a few thousand days, gone.<br>Some lives take three minutes. Some take an hour.',
     startBtn: 'BE BORN', startHint: 'Press <kbd>Space</kbd> to pause · <kbd>R</kbd> to be born again',
     bcLabel: 'BIRTH CERTIFICATE', bcFamily: 'FAMILY', bcEdu: 'SCHOOL SYSTEM', begin: 'LIVE THIS LIFE',
-    bcLife: 'LIFE EXPECTANCY', bcGdp: 'OUTPUT PER HEAD', lifeAvg: 'National average', gdpAvg: 'GDP per capita',
+    bcLife: 'LIFE EXPECTANCY', bcGdp: 'GDP PER HEAD', lifeAvg: 'National average', gdpAvg: 'GDP per capita',
     fullLog: 'FULL LOG', fullLogClose: 'HIDE LOG',
     hp: 'Health', iq: 'Mind', ap: 'Looks', jy: 'Joy', ageUnit: 'yrs',
     logTitle: 'LIFE LOG',
@@ -64,7 +64,7 @@ const T = {
     newAch: 'Unlocked',
     noAch: 'No titles this time.',
     common: 'Common', uncommon: 'Uncommon', rare: 'Rare', veryRare: 'Extremely rare',
-    overall: 'Overall', betterThan: 'better than {p}% of all lives',
+    overall: 'Overall', betterThan: 'Better than {p}% of all lives',
     lifespan: 'Lifespan', onlyYou: 'Only you',
     inSchool: 'In school', noJob: 'None', notYet: '—',
     forkTitle: 'THE ROAD NOT TAKEN', forkOther: 'The other road', forkMore: '+{n} MORE CHOICES',
@@ -364,6 +364,8 @@ function dailySeed() {
 /* opts: { seed, country, daily } */
 function doBirth(opts) {
   opts = opts || {};
+  /* 普通投胎就清掉对决信息，别让不相干的人生顶着别人的战绩 */
+  if (!opts.fromLink) CHALLENGE = null;
   clearTimer();
   trackOnce('start');
   const seed = (opts.seed !== undefined) ? opts.seed
@@ -384,6 +386,11 @@ function renderBirth() {
   const s = S, c = s.c, tier = E.TIERS[s.tier];
   $('bcFlag').textContent = c.flag;
   $('bcCountry').textContent = lang === 'zh' ? c.zh : c.en;
+  $('bcDuel').textContent = CHALLENGE
+    ? (lang === 'zh'
+      ? '有人把这手牌发给了你 · 他活了 ' + CHALLENGE.age + ' 岁 · ' + CHALLENGE.grade + ' 级'
+      : 'Someone dealt you this hand · they lived to ' + CHALLENGE.age + ' · grade ' + CHALLENGE.grade)
+    : '';
   $('bcRegion').textContent = (lang === 'zh' ? REGIONS[c.region].zh : REGIONS[c.region].en)
     + ' · ' + (lang === 'zh' ? '人口 ' + fmtBig(c.pop * 1e6) : fmtBig(c.pop * 1e6) + ' people')
     + ' · ' + (s.urban ? (lang === 'zh' ? '城市' : 'city') : (lang === 'zh' ? '农村' : 'countryside'));
@@ -789,6 +796,7 @@ function renderEnd() {
   const tg = tagsOf(s);
   $('endTags').innerHTML = tg.map(x => '<span class="lifechip">' + x + '</span>').join('');
   $('endDaily').textContent = '';
+  renderDuel(s);
 
   /* 岔路回溯的横幅 */
   const alt = $('endAlt');
@@ -843,7 +851,36 @@ function renderEnd() {
       '<span class="ach-count">' + got.length + ' / ' + E.ACH_LIST.length + '</span>'
     : '<span class="ach-empty">' + t('noAch') + '</span>';
 
-  /* 未走的路 */
+  /* 同牌对决：把这一生和发链接的人比一比 */
+function renderDuel(s) {
+  const box = $('endDuel');
+  if (!CHALLENGE || s.cf) { box.innerHTML = ''; return; }
+  const mine = Math.round(s.score * 10) / 10;
+  const diff = mine - CHALLENGE.score;
+  const myGrade = E.grade(s.pct).k;
+  let verdict, cls;
+  if (Math.abs(diff) < 0.5) {
+    verdict = lang === 'zh' ? '打平了' : 'a draw';
+    cls = '';
+  } else if (diff > 0) {
+    verdict = lang === 'zh' ? '这一手牌你打得更好' : 'you played it better';
+    cls = 'win';
+  } else {
+    verdict = lang === 'zh' ? '这一手牌对方打得更好' : 'they played it better';
+    cls = 'lose';
+  }
+  box.innerHTML =
+    '<div>' + (lang === 'zh' ? '同 一 手 牌' : 'S A M E   H A N D') + '</div>' +
+    '<div>' +
+      (lang === 'zh' ? '对方 ' : 'them ') + CHALLENGE.age + (lang === 'zh' ? ' 岁 ' : ' · ') + CHALLENGE.grade +
+      '<span class="vs">vs</span>' +
+      (lang === 'zh' ? '你 ' : 'you ') + s.age + (lang === 'zh' ? ' 岁 ' : ' · ') + myGrade +
+    '</div>' +
+    '<div class="' + cls + '">' + verdict +
+      '<span class="vs">' + mine.toFixed(1) + ' / ' + CHALLENGE.score.toFixed(1) + '</span></div>';
+}
+
+/* 未走的路 */
   renderForks(s);
 
   const scored = s.log.filter(e => e.kind !== 'birth').map(e => {
@@ -1025,18 +1062,24 @@ function copyText(txt, okMsg) {
   } catch (e) { toast('×'); }
 }
 
-/* 人生链接：把种子带在 URL 里，别人点开就是同一手牌 */
+/* 人生链接：把种子带在 URL 里，别人点开就是同一手牌。
+   如果链接里还带着分享者的成绩（a=年龄 g=评级 r=分数），就变成一场同牌对决。 */
+let CHALLENGE = null;
+
 function lifeLink() {
   if (!S || S.seed === undefined) return '';
-  return GAME.url + '/?s=' + S.seed + (S.pinned ? '&c=' + S.pinned : '');
+  let u = GAME.url + '/?s=' + S.seed;
+  if (S.pinned) u += '&c=' + S.pinned;
+  u += '&a=' + S.age + '&g=' + E.grade(S.pct).k + '&r=' + (Math.round(S.score * 10) / 10);
+  return u;
 }
 
 function copyLifeLink() {
   const url = lifeLink();
   if (!url) return;
   copyText(url, lang === 'zh'
-    ? '链接已复制，别人点开会拿到同一手牌'
-    : 'Link copied — same starting hand');
+    ? '链接已复制，对方会用同一手牌跟你比'
+    : 'Link copied — they play the same hand and try to beat you');
 }
 
 /* ---------------- 人生卡片 ---------------- */
@@ -1563,7 +1606,14 @@ trackOnce('open');
   const raw = parseInt(p.get('s'), 10);
   if (!isFinite(raw) || raw <= 0) return;
   const cid = (p.get('c') || '').toUpperCase();
-  doBirth({ seed: raw >>> 0, country: /^[A-Z]{2}$/.test(cid) ? cid : null });
+  /* 链接里带着分享者的成绩，就记下来，结局时做对比 */
+  const age = parseInt(p.get('a'), 10);
+  const score = parseFloat(p.get('r'));
+  const grade = (p.get('g') || '').toUpperCase().slice(0, 3);
+  if (isFinite(age) && age > 0 && age <= 130 && isFinite(score) && /^[EDCBAS]{1,3}$/.test(grade)) {
+    CHALLENGE = { age: age, score: score, grade: grade };
+  }
+  doBirth({ seed: raw >>> 0, country: /^[A-Z]{2}$/.test(cid) ? cid : null, fromLink: true });
 })();
 document.addEventListener('visibilitychange', function () {
   if (document.visibilityState === 'hidden') {

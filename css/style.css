@@ -689,3 +689,20 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     scroll-behavior: auto !important;
   }
 }
+
+/* ---------- 同牌对决 ---------- */
+.bc-duel {
+  font-size: 11.5px; letter-spacing: .08em; color: var(--gold);
+  border: 1px solid rgba(169,118,44,.3); background: rgba(169,118,44,.06);
+  border-radius: 20px; padding: 4px 14px; margin: 10px auto 0; display: inline-block;
+}
+.bc-duel:empty { display: none; }
+.end-duel {
+  margin-top: 14px; padding: 12px 16px; border-radius: 4px;
+  border: 1px solid rgba(169,118,44,.35); background: rgba(169,118,44,.06);
+  font-size: 13px; color: var(--ink-2); line-height: 1.8;
+}
+.end-duel:empty { display: none; }
+.end-duel .win { color: var(--gold); font-weight: 600; }
+.end-duel .lose { color: var(--ink-3); }
+.end-duel .vs { font-family: var(--mono); font-size: 11px; color: var(--ink-3); margin: 0 8px; }
