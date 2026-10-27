@@ -4,6 +4,8 @@
 
 一个纯前端的人生模拟器。零依赖，一个 HTML 文件就能跑。
 
+[![CI](https://github.com/sylvia-ccc/life-in-3-minutes/actions/workflows/ci.yml/badge.svg)](https://github.com/sylvia-ccc/life-in-3-minutes/actions/workflows/ci.yml)
+
 **[在线体验 →](https://game.workagentpro.com)** ｜ [单文件版](dist/life-in-3-minutes.html)（下载后双击即玩，不需要联网）
 
 ![开始界面](docs/01-start.png)
@@ -32,7 +34,7 @@
 | 结局成就 | 19 个 |
 | 图鉴收集称号 | 18 个 |
 
-## 四个入口
+## 五个入口
 
 **投胎** —— 纯随机，按人口加权。
 
@@ -48,6 +50,9 @@
 
 ![岔路回溯](docs/04-counterfactual.png)
 
+**人生链接** —— 结局页可以复制一条带种子的链接（`?s=123456789`）。
+别人打开就是你这一生的同一手牌：同样的国家、同样的家庭、同样的天赋，但怎么打由他自己决定。
+
 ## 一些设计上的取舍
 
 **投胎概率为什么要压缩。**
@@ -59,7 +64,7 @@
 **财富两极分化怎么来的。**
 不是随机发钱，是让钱自己去滚：每个阶层有不同的资本回报率（赤贫 1.8% → 顶级富豪 7.2%），
 同时富人每年要扣掉 1.3% 的资产当生活开销。同一套规则下，4 万次模拟跑出来
-中位财富 $35k、99% 分位 $57M、0.36% 的人成为亿万富翁。
+中位财富 $33k、99% 分位 $56M、0.37% 的人成为亿万富翁。
 
 **选择为什么会重复。**
 一开始全库只有 23 个抉择事件，一局要做 7 次选择，等于三局就把池子走一遍。
@@ -77,13 +82,61 @@
 `tools/sim.js` 会跑 4 万次完整人生，把分数、寿命、财富、快乐度的分布统计成 101 个分位点，
 写进 `js/data-dist.js`。所以你看到的「超过了 94.1% 的人生」是真的从这个模型里算出来的。
 
-## 技术实现
+## 把它变成你自己的版本
 
-- **零依赖**：没有框架、没有打包器、没有 CDN。原生 HTML + CSS + Canvas 2D。
-- **单文件构建**：`node tools/build.js` 把所有 JS/CSS 内联成一个 295KB 的 HTML，gzip 后约 100KB。
-- **确定性随机**：`mulberry32` + 显式种子，支持重放与回溯。
-- **分享卡片**：Canvas 现场绘制 1080×1440 的卡片，底部带一个预生成的二维码（矩阵直接内联在代码里，运行时不需要二维码库）。
-- **可选的统计服务**：`server/collect.py`，Python 标准库实现，零依赖，见下。
+这个项目是按「别人能拿去改」来设计的。想做一个自己的主题版本，通常只要三步：
+
+**1. 改 `js/config.js`**
+
+```js
+const GAME = {
+  title:   '我的模拟器',
+  titleEn: 'My Simulator',
+  site:    'example.com',
+  url:     'https://example.com',
+  lang:    'zh',
+  track:    false,   // 不想上报就关掉
+  daily:    false,   // 不要今日之命
+  gallery:  true,
+  card:     true,
+  qr:       false,   // 不画二维码
+  seedLink: true,
+  storageKey: 'mysim.v1',
+};
+```
+
+关掉的入口会自动隐藏，不用改 HTML。
+
+**2. 换内容**
+
+国家、事件、阶层都在 `js/data-*.js` 里，都是普通数组，照着改就行。
+格式说明见 **[CONTENT.md](CONTENT.md)**，里面有完整的字段表和例子。
+
+**3. 重新构建**
+
+```bash
+node tools/validate.js    # 先校验数据
+node tools/sim.js 40000   # 内容变了要重算分位表
+node tools/build.js       # 打包成一个 HTML
+```
+
+如果你把网址也改了，卡片上的二维码需要重新生成（`tools/qr.py`），
+否则扫码会指回原来的站点。
+
+## 架构
+
+三层，互不纠缠：
+
+```
+data-*.js   纯数据（国家、事件、分位表）
+   ↓
+engine.js   纯逻辑：newLife → tick → resolveChoice → finalize / replay
+   ↓
+app.js      界面：渲染、存档、卡片、图鉴、埋点
+```
+
+`engine.js` 不碰 DOM，所以可以直接在 Node 里跑——批量模拟、测试、回溯都靠这一点。
+想把它改成「模拟一家公司」「模拟一段婚姻」，基本只需要换数据 + 改 `engine.js` 里的推演规则。
 
 ## 目录结构
 
@@ -92,6 +145,7 @@
 ├── index.html              页面骨架
 ├── css/style.css           样式
 ├── js/
+│   ├── config.js           ★ 品牌、网址、功能开关
 │   ├── data-countries.js   120 个国家、姓名池、7 层阶层与权重
 │   ├── data-events.js      386 条事件（含 64 个抉择）
 │   ├── data-dist.js        4 万次模拟生成的分位表（自动生成，勿手改）
@@ -99,10 +153,14 @@
 │   └── app.js              界面、存档、卡片、图鉴
 ├── tools/
 │   ├── build.js            打包成单文件
+│   ├── validate.js         内容数据校验
+│   ├── test.js             引擎不变量测试（node --test）
 │   ├── sim.js              批量模拟 + 生成分位表
+│   ├── qr.py               重新生成卡片二维码矩阵
 │   ├── verify-track.js     无头浏览器跑完整一局，校验埋点
 │   └── shot*.js            截图自检
 ├── server/collect.py       可选的访问统计服务
+├── CONTENT.md              内容编写指南
 └── dist/                   构建产物
 ```
 
@@ -110,16 +168,11 @@
 
 不需要安装任何东西，直接打开 `index.html` 就行。
 
-改完之后重新打包：
-
 ```bash
-node tools/build.js        # 生成 dist/life-in-3-minutes.html
-```
-
-重新生成分位表（改了数值平衡之后必须跑）：
-
-```bash
-node tools/sim.js 40000
+node tools/validate.js      # 校验内容数据
+node --test tools/test.js   # 跑引擎测试
+node tools/build.js         # 生成 dist/life-in-3-minutes.html
+node tools/sim.js 40000     # 重新生成分位表（改了数值平衡之后必须跑）
 ```
 
 截图 / 埋点自检需要浏览器：
@@ -135,20 +188,13 @@ npm run check:track
 
 `server/collect.py` 是一个零依赖的访问统计服务，只用 Python 标准库。
 它收埋点、按月存 JSONL、提供一个带密码的面板。不存原始 IP，只存加盐哈希。
-
-```bash
-python3 server/collect.py       # 监听 127.0.0.1:8099
-```
-
-默认把数据写在脚本同目录，可以用 `LIFE_STATS_BASE` 改。
-生产环境建议放在网站根目录**之外**，再用 nginx 反代 `/c`、`/stats`，面板加 basic auth。
-（这一点很重要：如果把服务目录放在网站根目录里，`collect.py` 会被直接下载。）
+详见 **[server/README.md](server/README.md)**。
 
 ## 数据与隐私
 
 游戏本身不联网也能玩，所有存档（图鉴、成就、连续天数）都在浏览器的 localStorage 里，不上传。
 只有在线版会匿名上报几个事件（打开、开始、完成、停留时长），用于统计有多少人玩到哪里。
-不存原始 IP，不存任何账号信息。
+不存原始 IP，不存任何账号信息。不想要这些，把 `config.js` 里的 `track` 改成 `false` 即可。
 
 ## 内测数据
 
@@ -156,6 +202,12 @@ python3 server/collect.py       # 监听 127.0.0.1:8099
 完成率 45%，对一个「点进来随便看看」的网页游戏来说算不错。
 
 结局评级分布：SSS 2 局、SS 19 局、S 28 局、A 18 局、B 19 局、C 25 局、D 15 局、E 15 局。
+
+## 参与
+
+- 加国家、加事件：看 [CONTENT.md](CONTENT.md)，改完跑 `node tools/validate.js`
+- 提 PR 之前请确保 `node --test tools/test.js` 全绿、`dist/` 已重新构建
+- 发现内容写得不对（某国的教育体系、某条事件的措辞），直接开 issue 就行
 
 ## 授权
 

@@ -695,6 +695,23 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   .card-actions { padding: 10px 14px 14px; }
 }
 
+/* ---------- 无障碍 ---------- */
+/* 键盘操作时给出清晰的焦点框 */
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+/* 系统开启「减少动态效果」时，关掉所有过渡与动画 */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 </style>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌍</text></svg>">
 </head>
@@ -855,6 +872,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
           </button>
           <button class="btn-ghost" id="btnSame"><span id="sameBtn">在这一国再活一次</span></button>
           <button class="btn-ghost" id="btnShare"><span id="shareBtn">复制这一生</span></button>
+          <button class="btn-ghost" id="btnLink"><span id="linkBtn">复制人生链接</span></button>
           <button class="btn-ghost" id="btnCard"><span id="cardBtn">人生卡片</span></button>
           <button class="btn-ghost" id="btnGal2"><span id="gal2Btn">命运图鉴</span></button>
         </div>
@@ -925,6 +943,41 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   <div id="toasts"></div>
 </div>
 
+<script>
+/* ==== config.js ==== */
+/* ============================================================
+   配置文件
+   —— 想把它变成你自己的版本，改这一个文件就够了。
+   —— 改完记得重新构建：node tools/build.js
+   ============================================================ */
+const GAME = {
+  /* 品牌 */
+  title:   '模拟人生 · 3 分钟看完一生',
+  titleEn: 'Life in 3 Minutes',
+  site:    'game.workagentpro.com',            // 卡片底部显示的网址
+  url:     'https://game.workagentpro.com',    // 分享文案里的完整链接
+
+  /* 默认语言：'zh' 或 'en'（玩家切换过之后以玩家选择为准） */
+  lang: 'zh',
+
+  /* 功能开关 */
+  track:    true,   // 匿名埋点：打开 / 开始 / 完成 / 停留时长
+  daily:    true,   // 今日之命：同一天所有人同一个种子
+  gallery:  true,   // 命运图鉴：国家收集与称号
+  card:     true,   // 人生卡片：Canvas 绘制的分享图
+  qr:       true,   // 卡片上的二维码
+  seedLink: true,   // 人生链接：?s=<seed> 让别人重走你这一生
+
+  /* 存档命名空间。同一个域名下跑多份副本时，记得改成不同的值 */
+  storageKey: 'life3m.v1',
+
+  /* 卡片二维码指向的网址。
+     矩阵是按这个网址预生成的；如果你改了 url，需要重新生成，
+     否则二维码会指错地方（tools/qr.py 可以重新生成矩阵）。 */
+  qrUrl: 'https://game.workagentpro.com',
+};
+
+</script>
 <script>
 /* ==== data-countries.js ==== */
 /* ============================================================
@@ -1032,19 +1085,19 @@ const COUNTRIES = [
   { id:'PG', flag:'🇵🇬', pop:10,   region:'oceania',       zh:'巴布亚新几内亚', en:'Papua New Guinea', life:66.0, gdp:2700, edu:0.50, mob:0.30, cost:0.30, nm:'oc',  style:'scarce' },
 
   /* ---- 第二批：北欧、东欧、海湾、非洲之角、南美、大洋洲 ---- */
-  { id:'SE', flag:'🇸🇪', pop:10.5, region:'europe',        zh:'瑞典',         en:'Sweden',         life:83.3, gdp:56000, edu:0.96, mob:0.60, cost:0.88, nm:'eu',    style:'liberal' },
-  { id:'NO', flag:'🇳🇴', pop:5.5,  region:'europe',        zh:'挪威',         en:'Norway',         life:83.2, gdp:87000, edu:0.97, mob:0.62, cost:1.05, nm:'eu',    style:'liberal' },
-  { id:'CH', flag:'🇨🇭', pop:8.8,  region:'europe',        zh:'瑞士',         en:'Switzerland',    life:84.0, gdp:93000, edu:0.96, mob:0.58, cost:1.15, nm:'eu',    style:'vocational' },
-  { id:'PL', flag:'🇵🇱', pop:37,   region:'europe',        zh:'波兰',         en:'Poland',         life:78.0, gdp:18000, edu:0.90, mob:0.50, cost:0.55, nm:'eu',    style:'standard' },
+  { id:'IS', flag:'🇮🇸', pop:0.39, region:'europe',        zh:'冰岛',         en:'Iceland',        life:83.1, gdp:74000, edu:0.96, mob:0.62, cost:1.05, nm:'eu',    style:'free' },
+  { id:'EE', flag:'🇪🇪', pop:1.37, region:'europe',        zh:'爱沙尼亚',     en:'Estonia',        life:78.1, gdp:28000, edu:0.92, mob:0.56, cost:0.72, nm:'eu',    style:'free' },
+  { id:'LV', flag:'🇱🇻', pop:1.88, region:'europe',        zh:'拉脱维亚',     en:'Latvia',         life:75.2, gdp:21000, edu:0.90, mob:0.50, cost:0.66, nm:'eu',    style:'free' },
+  { id:'LT', flag:'🇱🇹', pop:2.79, region:'europe',        zh:'立陶宛',       en:'Lithuania',      life:76.0, gdp:25000, edu:0.90, mob:0.52, cost:0.68, nm:'eu',    style:'free' },
   { id:'UA', flag:'🇺🇦', pop:37,   region:'europe',        zh:'乌克兰',       en:'Ukraine',        life:71.0, gdp:4500,  edu:0.85, mob:0.42, cost:0.30, nm:'ru',    style:'standard' },
   { id:'PT', flag:'🇵🇹', pop:10.4, region:'europe',        zh:'葡萄牙',       en:'Portugal',       life:81.5, gdp:25000, edu:0.90, mob:0.50, cost:0.65, nm:'eu',    style:'liberal' },
   { id:'CZ', flag:'🇨🇿', pop:10.9, region:'europe',        zh:'捷克',         en:'Czechia',        life:79.5, gdp:27000, edu:0.92, mob:0.52, cost:0.60, nm:'eu',    style:'vocational' },
   { id:'HU', flag:'🇭🇺', pop:9.6,  region:'europe',        zh:'匈牙利',       en:'Hungary',        life:76.0, gdp:19000, edu:0.90, mob:0.48, cost:0.55, nm:'eu',    style:'standard' },
   { id:'IE', flag:'🇮🇪', pop:5.3,  region:'europe',        zh:'爱尔兰',       en:'Ireland',        life:82.5, gdp:100000,edu:0.95, mob:0.55, cost:1.00, nm:'eu',    style:'liberal' },
-  { id:'SG', flag:'🇸🇬', pop:5.9,  region:'southeastAsia', zh:'新加坡',       en:'Singapore',      life:83.5, gdp:82000, edu:0.95, mob:0.55, cost:1.20, nm:'sea',   style:'exam' },
+  { id:'HR', flag:'🇭🇷', pop:3.85, region:'europe',        zh:'克罗地亚',     en:'Croatia',        life:78.2, gdp:18000, edu:0.85, mob:0.45, cost:0.62, nm:'eu',    style:'standard' },
   { id:'MM', flag:'🇲🇲', pop:54,   region:'southeastAsia', zh:'缅甸',         en:'Myanmar',        life:66.0, gdp:1200,  edu:0.50, mob:0.30, cost:0.20, nm:'sea',   style:'scarce' },
   { id:'AF', flag:'🇦🇫', pop:42,   region:'middleEast',    zh:'阿富汗',       en:'Afghanistan',    life:62.0, gdp:400,   edu:0.30, mob:0.20, cost:0.16, nm:'me',    style:'scarce' },
-  { id:'GH', flag:'🇬🇭', pop:34,   region:'africa',        zh:'加纳',         en:'Ghana',          life:64.0, gdp:2200,  edu:0.60, mob:0.38, cost:0.26, nm:'af',    style:'standard' },
+  { id:'BG', flag:'🇧🇬', pop:6.45, region:'europe',        zh:'保加利亚',     en:'Bulgaria',       life:75.1, gdp:13000, edu:0.82, mob:0.42, cost:0.52, nm:'eu',    style:'standard' },
   { id:'CI', flag:'🇨🇮', pop:28,   region:'africa',        zh:'科特迪瓦',     en:"Côte d'Ivoire",  life:59.0, gdp:2500,  edu:0.50, mob:0.34, cost:0.26, nm:'af',    style:'scarce' },
   { id:'SD', flag:'🇸🇩', pop:48,   region:'middleEast',    zh:'苏丹',         en:'Sudan',          life:65.0, gdp:1000,  edu:0.40, mob:0.26, cost:0.20, nm:'me',    style:'scarce' },
   { id:'UG', flag:'🇺🇬', pop:48,   region:'africa',        zh:'乌干达',       en:'Uganda',         life:63.0, gdp:1000,  edu:0.45, mob:0.32, cost:0.20, nm:'af',    style:'scarce' },
@@ -1056,19 +1109,19 @@ const COUNTRIES = [
   { id:'NE', flag:'🇳🇪', pop:26,   region:'africa',        zh:'尼日尔',       en:'Niger',          life:61.0, gdp:600,   edu:0.30, mob:0.24, cost:0.16, nm:'af',    style:'scarce' },
   { id:'SO', flag:'🇸🇴', pop:18,   region:'africa',        zh:'索马里',       en:'Somalia',        life:56.0, gdp:600,   edu:0.25, mob:0.18, cost:0.18, nm:'af',    style:'scarce' },
   { id:'LY', flag:'🇱🇾', pop:7,    region:'middleEast',    zh:'利比亚',       en:'Libya',          life:72.0, gdp:6500,  edu:0.70, mob:0.30, cost:0.28, nm:'me',    style:'standard' },
-  { id:'AE', flag:'🇦🇪', pop:10,   region:'middleEast',    zh:'阿联酋',       en:'United Arab Emirates', life:79.0, gdp:49000, edu:0.88, mob:0.42, cost:0.80, nm:'me', style:'standard' },
+  { id:'MD', flag:'🇲🇩', pop:2.51, region:'europe',        zh:'摩尔多瓦',     en:'Moldova',        life:71.8, gdp:5700,  edu:0.78, mob:0.35, cost:0.34, nm:'eu',    style:'standard' },
   { id:'KW', flag:'🇰🇼', pop:4.3,  region:'middleEast',    zh:'科威特',       en:'Kuwait',         life:78.5, gdp:32000, edu:0.85, mob:0.40, cost:0.70, nm:'me',    style:'standard' },
   { id:'QA', flag:'🇶🇦', pop:2.7,  region:'middleEast',    zh:'卡塔尔',       en:'Qatar',          life:80.0, gdp:80000, edu:0.88, mob:0.40, cost:0.90, nm:'me',    style:'standard' },
   { id:'IL', flag:'🇮🇱', pop:9.8,  region:'middleEast',    zh:'以色列',       en:'Israel',         life:82.5, gdp:55000, edu:0.94, mob:0.52, cost:0.95, nm:'il',    style:'liberal' },
   { id:'LB', flag:'🇱🇧', pop:5.5,  region:'middleEast',    zh:'黎巴嫩',       en:'Lebanon',        life:75.0, gdp:4000,  edu:0.80, mob:0.32, cost:0.40, nm:'me',    style:'standard' },
   { id:'SY', flag:'🇸🇾', pop:23,   region:'middleEast',    zh:'叙利亚',       en:'Syria',          life:72.0, gdp:900,   edu:0.55, mob:0.24, cost:0.20, nm:'me',    style:'scarce' },
   { id:'YE', flag:'🇾🇪', pop:34,   region:'middleEast',    zh:'也门',         en:'Yemen',          life:64.0, gdp:600,   edu:0.35, mob:0.20, cost:0.18, nm:'me',    style:'scarce' },
-  { id:'PE', flag:'🇵🇪', pop:34,   region:'latam',         zh:'秘鲁',         en:'Peru',           life:77.0, gdp:7000,  edu:0.80, mob:0.40, cost:0.32, nm:'latam', style:'standard' },
+  { id:'AM', flag:'🇦🇲', pop:2.78, region:'centralAsia',   zh:'亚美尼亚',     en:'Armenia',        life:75.1, gdp:6000,  edu:0.85, mob:0.38, cost:0.36, nm:'ca',    style:'standard' },
   { id:'VE', flag:'🇻🇪', pop:28,   region:'latam',         zh:'委内瑞拉',     en:'Venezuela',      life:72.0, gdp:3500,  edu:0.85, mob:0.32, cost:0.30, nm:'latam', style:'standard' },
-  { id:'CL', flag:'🇨🇱', pop:20,   region:'latam',         zh:'智利',         en:'Chile',          life:80.0, gdp:16000, edu:0.90, mob:0.46, cost:0.50, nm:'latam', style:'liberal' },
+  { id:'FJ', flag:'🇫🇯', pop:0.93, region:'oceania',       zh:'斐济',         en:'Fiji',           life:68.0, gdp:5300,  edu:0.75, mob:0.40, cost:0.40, nm:'oc',    style:'standard' },
   { id:'CR', flag:'🇨🇷', pop:5.2,  region:'latam',         zh:'哥斯达黎加',   en:'Costa Rica',     life:80.0, gdp:13000, edu:0.88, mob:0.48, cost:0.45, nm:'latam', style:'liberal' },
   { id:'DO', flag:'🇩🇴', pop:11,   region:'latam',         zh:'多米尼加',     en:'Dominican Republic', life:73.0, gdp:10000, edu:0.78, mob:0.38, cost:0.38, nm:'latam', style:'standard' },
-  { id:'NZ', flag:'🇳🇿', pop:5.2,  region:'oceania',       zh:'新西兰',       en:'New Zealand',    life:82.5, gdp:48000, edu:0.95, mob:0.60, cost:0.90, nm:'oc',    style:'liberal' },
+  { id:'TT', flag:'🇹🇹', pop:1.53, region:'latam',         zh:'特立尼达和多巴哥', en:'Trinidad and Tobago', life:74.0, gdp:17000, edu:0.80, mob:0.42, cost:0.58, nm:'latam', style:'standard' },
   { id:'KG', flag:'🇰🇬', pop:7,    region:'centralAsia',   zh:'吉尔吉斯斯坦', en:'Kyrgyzstan',     life:72.0, gdp:1600,  edu:0.78, mob:0.34, cost:0.22, nm:'ca',    style:'standard' },
   { id:'TJ', flag:'🇹🇯', pop:10,   region:'centralAsia',   zh:'塔吉克斯坦',   en:'Tajikistan',     life:71.0, gdp:1000,  edu:0.75, mob:0.28, cost:0.18, nm:'ca',    style:'scarce' },
   { id:'TM', flag:'🇹🇲', pop:6.5,  region:'centralAsia',   zh:'土库曼斯坦',   en:'Turkmenistan',   life:69.0, gdp:9000,  edu:0.75, mob:0.26, cost:0.26, nm:'ca',    style:'standard' },
@@ -1474,16 +1527,16 @@ const EV_COUNTRY = [
   { id:'fi_sauna', a:[20,70], w:3, t:'g', cn:['FI','SE','EE','LV','LT'], zh:'你这辈子最重要的一笔生意，是在桑拿房里谈成的。', en:'The most important deal of your life was made in a sauna.', fx:{mo:2,jy:5} },
   { id:'fi_dark', a:[10,70], w:2, t:'b', cn:['FI','SE','NO','IS','EE'], zh:'冬天有四个月见不到几次太阳，你学会了和黑暗相处。', en:'Four months of near-darkness. You learned to live with it.', fx:{jy:-5} },
   { id:'gr_island', a:[6,50], w:3, t:'n', cn:['GR','HR','IT','ES','PT'], zh:'你在一座只有两百人的岛上长大，夏天会来一万个游客。', en:'You grew up on an island of two hundred. Ten thousand tourists came each summer.', fx:{jy:4,mo:1} },
-  { id:'ro_abroad', a:[20,50], w:4, t:'n', cn:['RO','BG','MD','RS','AL','PL'], zh:'你去了西欧打工，孩子留在老家由父母带。', en:'You went to work in Western Europe. The children stayed home with your parents.', fx:{mo:2,jy:-8,hp:-3}, c:s=>s.ed<=4 },
-  { id:'rs_river', a:[14,70], w:3, t:'g', cn:['RS','HR','BA','BG','RO'], zh:'夏天全城都去河边，一直待到半夜。', en:'In summer the whole city went to the river and stayed past midnight.', fx:{jy:7} },
+  { id:'ro_abroad', a:[20,50], w:4, t:'n', cn:['RO','BG','MD','RS','PL'], zh:'你去了西欧打工，孩子留在老家由父母带。', en:'You went to work in Western Europe. The children stayed home with your parents.', fx:{mo:2,jy:-8,hp:-3}, c:s=>s.ed<=4 },
+  { id:'rs_river', a:[14,70], w:3, t:'g', cn:['RS','HR','BG','RO'], zh:'夏天全城都去河边，一直待到半夜。', en:'In summer the whole city went to the river and stayed past midnight.', fx:{jy:7} },
   { id:'cu_doctor', a:[22,40], w:3, t:'n', cn:['CU'], zh:'国家培养你当了医生，然后派你出国工作了很多年。', en:'The state trained you as a doctor, then sent you abroad to work for years.', fx:{mo:1,jy:-4,iq:3}, c:s=>s.ed>=6 },
   { id:'cu_oldcar', a:[8,70], w:3, t:'n', cn:['CU'], zh:'你家的车是 1957 年的，修了四十年，还在开。', en:'The family car was from 1957. Forty years of repairs, still running.', fx:{jy:3,mo:-1} },
   { id:'ec_galapagos', a:[18,55], w:2, t:'g', cn:['EC'], zh:'你在加拉帕戈斯做向导，见过别人一辈子见不到的东西。', en:'You guided tours in the Galápagos and saw things most people never will.', fx:{jy:9,iq:3,mo:1} },
   { id:'gt_maya', a:[6,50], w:3, t:'n', cn:['GT','MX','PE','BO'], zh:'你祖母只说玛雅语，你只听得懂一半。', en:'Your grandmother spoke only Mayan. You understood half of it.', fx:{jy:3,iq:2} },
   { id:'bo_altitude', a:[5,60], w:3, t:'n', cn:['BO','PE','EC'], zh:'你在四千米的高原上长大，跑两步就喘。', en:'You grew up at four thousand metres. Two steps and you were gasping.', fx:{hp:-3,jy:2} },
   { id:'uy_football', a:[8,60], w:3, t:'g', cn:['UY','AR','BR'], zh:'这个国家只有三百万人，却拿过世界冠军。', en:'Three million people, and a world cup.', fx:{jy:8} },
-  { id:'jm_reggae', a:[6,60], w:3, t:'g', cn:['JM','BB','TT'], zh:'你家的收音机永远放着雷鬼，邻居从不抱怨。', en:'The radio always played reggae. The neighbours never complained.', fx:{jy:7} },
-  { id:'pg_tribe', a:[5,60], w:3, t:'n', cn:['PG','FJ','SB','VU'], zh:'你来自一个有一千种语言的岛，村里人靠海和森林活着。', en:'You came from an island of a thousand languages. The village lived off the sea and the forest.', fx:{hp:3,jy:3} },
+  { id:'jm_reggae', a:[6,60], w:3, t:'g', cn:['JM','TT'], zh:'你家的收音机永远放着雷鬼，邻居从不抱怨。', en:'The radio always played reggae. The neighbours never complained.', fx:{jy:7} },
+  { id:'pg_tribe', a:[5,60], w:3, t:'n', cn:['PG','FJ'], zh:'你来自一个有一千种语言的岛，村里人靠海和森林活着。', en:'You came from an island of a thousand languages. The village lived off the sea and the forest.', fx:{hp:3,jy:3} },
 ];
 
 const EV_TRAIT = [
@@ -2322,7 +2375,7 @@ const ALL_EVENTS = [].concat(EV_CHILD, EV_TEEN, EV_YOUNG, EV_MID, EV_OLD, EV_ANY
 <script>
 /* ==== data-dist.js ==== */
 /* 自动生成：40000 次模拟的分布表 */
-const DIST = {"score":[6.4,18.6,21.9,24.2,25.8,27.1,28.2,29.1,30.1,30.8,31.6,32.2,32.8,33.4,34,34.5,35,35.6,36,36.5,36.9,37.3,37.8,38.2,38.6,39,39.4,39.8,40.2,40.7,41.1,41.5,41.9,42.3,42.7,43.1,43.5,43.9,44.3,44.8,45.1,45.5,45.9,46.3,46.7,47.1,47.4,47.8,48.2,48.6,49,49.4,49.8,50.2,50.6,51.1,51.5,51.9,52.3,52.8,53.2,53.6,54.1,54.5,55,55.4,55.8,56.3,56.7,57.2,57.7,58.2,58.7,59.2,59.8,60.3,60.9,61.4,62.1,62.7,63.4,64.1,64.7,65.4,66.1,66.8,67.5,68.3,69.1,69.9,70.6,71.4,72.3,73.3,74.4,75.4,76.6,78.1,79.9,82.7,95.4],"age":[1,20,28,35,39,42,45,48,50,52,54,55,56,58,59,60,61,61,62,63,64,64,65,66,66,67,67,68,68,69,69,70,70,70,71,71,72,72,72,73,73,73,74,74,74,75,75,75,76,76,76,77,77,77,77,78,78,78,79,79,79,79,80,80,80,80,81,81,81,82,82,82,82,83,83,83,83,84,84,84,85,85,85,85,86,86,86,87,87,88,88,88,89,89,90,91,91,92,93,95,107],"wealth":[-1135879.2,-42940.9,-18550.4,-10791.6,-6985.3,-4652.1,-3199,-2270.9,-1543.3,-1003.2,-611.9,-292,-65.7,7.8,136.6,294.7,463.4,640.2,836.6,1030.6,1245.6,1493.3,1737.4,2041.8,2371.9,2709.8,3090.6,3528.9,4021.6,4542.8,5084.8,5756.9,6462.2,7193.5,7997.2,8867.4,9746.4,10871,11958.8,13123,14316.2,15738.3,17247.6,18903.7,20807.7,22724.4,24828.2,27026.1,29572.2,31955,34972.6,38073.9,41458.2,45055,49194.9,53198.2,57727.3,62643.9,67745.3,73913.5,80090.7,87092.5,94984.3,103329.6,112430.9,123179,133303.5,146591.9,160059,175324,192064.7,212062.3,236742.1,261226.2,289303.7,317904.2,350880.6,387756.6,428684.4,477430.2,528182.3,585395.6,649230.5,720310.9,803514,902523.9,1013095.6,1148612.1,1318888,1512124.9,1746883.7,2024876.3,2361704.3,2842942.8,3538515.8,4560048,6394350.3,9571009.9,14639775.3,56558892.6,21153901235.8],"happy":[2.6,24.3,29.7,33.3,36.2,38.3,40.2,42,43.4,44.7,45.9,47.1,48.2,49.3,50.3,51.3,52.1,52.9,53.7,54.5,55.2,55.9,56.6,57.3,58,58.6,59.2,59.8,60.4,61,61.6,62.2,62.7,63.3,63.8,64.3,64.9,65.4,65.9,66.4,66.9,67.3,67.8,68.3,68.7,69.3,69.7,70.2,70.7,71.1,71.6,72.1,72.5,72.9,73.4,73.9,74.3,74.7,75.2,75.6,76.1,76.5,77,77.4,77.9,78.3,78.7,79.2,79.7,80.1,80.5,81,81.4,81.9,82.4,82.9,83.3,83.8,84.3,84.8,85.3,85.8,86.4,86.9,87.5,88,88.7,89.2,89.8,90.4,91.1,91.6,92.5,93.3,94,95.1,95.5,97,97.6,97.6,100],"eduP":[1,0.825,0.717,0.495,0.439,0.134,0.08,0.029,0.014]};
+const DIST = {"score":[6.4,18.3,21.5,23.8,25.5,26.8,27.8,28.9,29.8,30.6,31.3,32,32.5,33.2,33.7,34.3,34.7,35.2,35.7,36.1,36.6,37.1,37.5,38,38.4,38.8,39.2,39.6,40.1,40.4,40.8,41.2,41.6,42.1,42.5,42.9,43.3,43.7,44.1,44.5,44.9,45.3,45.7,46.1,46.5,46.9,47.3,47.7,48.1,48.4,48.8,49.1,49.5,50,50.4,50.8,51.2,51.6,52,52.5,52.9,53.3,53.7,54.1,54.5,55,55.4,55.9,56.3,56.9,57.3,57.9,58.4,58.9,59.4,59.9,60.5,61.1,61.6,62.2,62.9,63.5,64.2,64.9,65.6,66.3,67,67.8,68.6,69.3,70.2,71.1,72,73,74,75.2,76.4,77.8,79.6,82.4,96],"age":[1,19,28,34,38,42,45,48,50,52,53,55,56,57,58,59,60,61,62,63,63,64,65,65,66,67,67,68,68,69,69,70,70,70,71,71,72,72,72,73,73,73,74,74,74,75,75,75,76,76,76,77,77,77,77,78,78,78,79,79,79,79,80,80,80,80,81,81,81,81,82,82,82,83,83,83,83,84,84,84,84,85,85,85,86,86,86,87,87,87,88,88,89,89,90,91,91,92,93,95,106],"wealth":[-1020727.4,-42531,-19788.7,-11661.4,-7488.9,-5017.8,-3454.7,-2408,-1688.8,-1175.4,-747.5,-415.4,-160.2,0,76.9,213.7,361.3,545.9,723.6,918.7,1138,1370.5,1628.6,1927.4,2238.8,2596.8,2977.1,3353.1,3815.4,4321.3,4826,5455,6176.1,6897.3,7644.6,8420.2,9266.7,10173.5,11214,12372.8,13517.9,14824.5,16153.3,17542.2,19330.1,21116.3,23088.2,25313.8,27416,29955.5,32610,35409.9,38481.1,41734.8,45662.2,49433.6,53804.7,58237.5,63036.9,68765.6,75023.3,82113.7,89425.8,97075.6,106112.3,115022.4,124989.4,136874.6,150630,164212.2,179163,194814.4,212980.7,233671,257177.8,285388.4,316817.3,351762.3,389410.1,431574.4,476853.4,531304.6,589187.6,654377.9,734183.2,831764.3,950727.4,1067164.9,1220610.1,1396708.1,1628832.4,1871500.2,2187100.2,2639549.7,3299689.8,4277900.5,5900466.6,8828658.5,14480081.2,55498454.5,14785689936.5],"happy":[2.6,23.6,29,32.9,35.8,38.1,40,41.6,43.3,44.7,45.9,47.2,48.3,49.4,50.4,51.2,52,52.8,53.6,54.3,55,55.7,56.4,57.1,57.8,58.5,59.1,59.7,60.3,60.9,61.5,62.1,62.7,63.2,63.8,64.3,64.8,65.3,65.8,66.2,66.7,67.1,67.6,68.1,68.5,69,69.5,70,70.5,71,71.4,71.8,72.3,72.7,73.1,73.6,74,74.5,75,75.4,75.9,76.4,76.8,77.2,77.7,78.1,78.6,79,79.5,80,80.4,80.9,81.3,81.7,82.2,82.7,83.2,83.7,84.2,84.7,85.2,85.7,86.2,86.8,87.4,88,88.5,89.1,89.6,90.4,91.1,91.5,92.4,93.2,93.9,94.9,95.4,97,97.6,97.6,100],"eduP":[1,0.82,0.71,0.488,0.432,0.129,0.077,0.026,0.013]};
 
 </script>
 <script>
@@ -2998,8 +3051,36 @@ function grade(pct) {
   return { k:'E', zh:'苦难', en:'Harsh' };
 }
 
+/* ---------- 回溯 ----------
+   从某个岔路重走一生：前面的选择按 picks 复现，到 forkIdx 换成 altIdx，之后随机。
+   分叉那一刻会重新掷骰子——很多选择本身不消耗随机数，
+   不重掷的话后面的事件流会和原来一模一样，等于没换路。 */
+function replay(seed, picks, forkIdx, altIdx, country) {
+  const s = newLife(seed, { country: country || null });
+  s.seed = seed;
+  let guard = 0, ci = 0;
+  while (s.alive && guard++ < 130) {
+    tick(s);
+    if (s.pending) {
+      let pick;
+      if (ci < forkIdx) pick = (picks && picks[ci] !== undefined) ? picks[ci] : 0;
+      else if (ci === forkIdx) pick = altIdx;
+      else pick = Math.floor(rnd() * s.pending.ch.length);
+      if (pick >= s.pending.ch.length) pick = s.pending.ch.length - 1;
+      resolveChoice(s, pick);
+      if (ci === forkIdx) {
+        const h = (seed ^ Math.imul(forkIdx + 1, 2654435761) ^ Math.imul(altIdx + 1, 40503)) >>> 0;
+        R.f = mulberry32(h);
+      }
+      ci++;
+    }
+  }
+  finalize(s);
+  return s;
+}
+
 const API = {
-  newLife, tick, resolveChoice, finalize, fmtMoney, grade, percentile, computeRarity,
+  newLife, tick, resolveChoice, finalize, replay, fmtMoney, grade, percentile, computeRarity,
   EDU_NAME, ACH_LIST, TIERS, setDist(d) { DIST = d; }, getDist() { return DIST; },
   _rng: R, mulberry32,
 };
@@ -3172,7 +3253,7 @@ const FAMILY_LINE = [
 ];
 
 /* ---------------- 存档 ---------------- */
-const LS = 'life3m.v1';
+const LS = GAME.storageKey;
 const LS_V0 = 'oieb.v1';
 function loadStore() {
   try {
@@ -3187,7 +3268,7 @@ function loadStore() {
   } catch (e) { return { lang: null, runs: [], countries: {}, tiers: {}, ach: {}, milestones: {}, best: {} }; }
 }
 let store = loadStore();
-let lang = store.lang || 'zh';
+let lang = store.lang || GAME.lang;
 function saveStore() { try { localStorage.setItem(LS, JSON.stringify(store)); } catch (e) {} }
 
 /* ---------------- 运行时状态 ---------------- */
@@ -3206,8 +3287,8 @@ const DELAY = { 1: 1000, 2: 470, 4: 210, 12: 65 };
 /* ---------------- 埋点（访问统计） ----------------
    只在 http(s) 下上报；单文件离线版（file://）自动静默。
    服务端只存加盐 IP 哈希，不存原始 IP。 */
-const SITE = 'game.workagentpro.com';
-const TRACK_ON = location.protocol === 'http:' || location.protocol === 'https:';
+const SITE = GAME.site;
+const TRACK_ON = GAME.track && (location.protocol === 'http:' || location.protocol === 'https:');
 let SID = '';
 try {
   SID = sessionStorage.getItem('life3m.sid') || '';
@@ -3299,7 +3380,7 @@ function toast(msg, tag) {
 /* ---------------- 语言 ---------------- */
 function applyLang() {
   document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
-  document.title = lang === 'zh' ? '模拟人生-3分钟看完一生' : 'Life in 3 Minutes — Your Whole Life, Start to Finish';
+  document.title = lang === 'zh' ? GAME.title : GAME.titleEn + ' — Your Whole Life, Start to Finish';
   $('brandTitle').textContent = t('brand');
   $('brandSub').textContent = t('brandSub');
   $('galLabel').textContent = t('gal');
@@ -3336,6 +3417,7 @@ function applyLang() {
     ? (lang === 'zh' ? '已连续投胎 ' + sk + ' 天' : sk + '-day streak')
     : '';
   $('shareBtn').textContent = t('share');
+  $('linkBtn').textContent = lang === 'zh' ? '复制人生链接' : 'Copy life link';
   $('gal2Btn').textContent = t('gal');
   $('gTitle').textContent = t('gTitle');
   $('backBtn').textContent = t('back');
@@ -3919,31 +4001,10 @@ function replayAlt(forkIdx, altIdx) {
   const fork = (src.choiceLog || [])[forkIdx];
   if (!fork) return;
 
-  const s = E.newLife(src.seed, { avoid: null, country: src.pinned || null });
-  s.seed = src.seed;
+  const picks = (src.choiceLog || []).map(c => c.picked);
+  const s = E.replay(src.seed, picks, forkIdx, altIdx, src.pinned || null);
   s.daily = false;
   s.pinned = src.pinned || null;
-
-  let guard = 0, ci = 0;
-  while (s.alive && guard++ < 130) {
-    E.tick(s);
-    if (s.pending) {
-      let pick;
-      if (ci < forkIdx) pick = src.choiceLog[ci] ? src.choiceLog[ci].picked : 0;
-      else if (ci === forkIdx) pick = altIdx;
-      else pick = Math.floor(Math.random() * s.pending.ch.length);
-      if (pick >= s.pending.ch.length) pick = s.pending.ch.length - 1;
-      E.resolveChoice(s, pick);
-      /* 分叉那一刻之后，世界重新掷骰子——否则有些选择不消耗随机数，
-         后面的事件流会和原人生一模一样，等于没换路 */
-      if (ci === forkIdx) {
-        const h = (src.seed ^ Math.imul(forkIdx + 1, 2654435761) ^ Math.imul(altIdx + 1, 40503)) >>> 0;
-        E._rng.f = E.mulberry32(h);
-      }
-      ci++;
-    }
-  }
-  E.finalize(s);
   s.cf = {
     age: fork.age,
     label: fork.opts[altIdx]
@@ -4026,23 +4087,58 @@ function shareLife() {
       '活了 ' + s.age + ' 岁，净财富 ' + E.fmtMoney(s.money, 'zh') + '，评级 ' + E.grade(s.pct).k + '\n' +
       '命运稀有度 ' + rarityStr(s.rarity) + '\n' +
       (s.jy >= 70 ? '一生尚算温暖。' : s.jy >= 45 ? '不好不坏的一生。' : '这一生太累了。') + '\n' +
-      '你也来投一次 → game.workagentpro.com'
+      '这是我这一生的手牌，你来打打看 → ' + lifeLink()
     : '《Life in 3 Minutes》' + t('lifeN').replace('{n}', runIndex) + '\n' +
       s.c.flag + ' ' + s.c.en + ' · ' + E.TIERS[s.tier].en + ' · ' + edu[1] + '\n' +
       tg + '\n' +
       'Lived ' + s.age + ' years, net worth ' + E.fmtMoney(s.money, 'en') + ', grade ' + E.grade(s.pct).k + '\n' +
       'Fate rarity ' + rarityStr(s.rarity) + '\n' +
       (s.jy >= 70 ? 'A warm life, all told.' : s.jy >= 45 ? 'Neither good nor bad.' : 'It was exhausting.') + '\n' +
-      'Roll your own life → game.workagentpro.com';
+      'This was my starting hand. Try it → ' + lifeLink();
   if (navigator.clipboard) {
     navigator.clipboard.writeText(txt).then(() => toast(t('copied')), () => toast('×'));
   }
 }
 
+/* 复制文本：优先用 clipboard API，失败就退回老办法 */
+function copyText(txt, okMsg) {
+  const done = () => toast(okMsg);
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(txt).then(done, () => toast('×'));
+    return;
+  }
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = txt;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    ta.remove();
+    done();
+  } catch (e) { toast('×'); }
+}
+
+/* 人生链接：把种子带在 URL 里，别人点开就是同一手牌 */
+function lifeLink() {
+  if (!S || S.seed === undefined) return '';
+  return GAME.url + '/?s=' + S.seed + (S.pinned ? '&c=' + S.pinned : '');
+}
+
+function copyLifeLink() {
+  const url = lifeLink();
+  if (!url) return;
+  copyText(url, lang === 'zh'
+    ? '链接已复制，别人点开会拿到同一手牌'
+    : 'Link copied — same starting hand');
+}
+
 /* ---------------- 人生卡片 ---------------- */
 const CARD_W = 1080, CARD_H = 1440;
 
-/* 固定二维码（指向 https://game.workagentpro.com），离线预生成，避免运行时引入编码器 */
+/* 固定二维码（指向 GAME.qrUrl），离线预生成，避免运行时引入编码器 */
+const QR_TARGET = 'https://game.workagentpro.com';
 const CARD_QR = [
   '11111110110011110100001111111',
   '10000010000000010000001000001',
@@ -4299,6 +4395,11 @@ function drawCard() {
     W / 2, 1226, { font: '11.5px ' + SANS, color: 'rgba(27,26,23,0.40)', sp: 3 });
 
   /* 二维码 + 网址：图片被转发出去后，扫码就能直接进来 */
+  const showQR = GAME.qr && GAME.qrUrl === QR_TARGET;
+  if (!showQR) {
+    text(SITE, W / 2, 1282, { font: '16px ' + SANS, color: 'rgba(169,118,44,0.92)', sp: 2.5 });
+    return;
+  }
   const qs = 120, qx = 366, qy = 1256;
   g.fillStyle = '#ffffff';
   g.fillRect(qx - 9, qy - 9, qs + 18, qs + 18);
@@ -4463,6 +4564,7 @@ $('forkList').onclick = e => {
   replayAlt(parseInt(btn.dataset.fork, 10), parseInt(btn.dataset.opt, 10));
 };
 $('btnShare').onclick = shareLife;
+$('btnLink').onclick = copyLifeLink;
 $('btnCard').onclick = openCard;
 $('cardClose').onclick = closeCard;
 $('btnSaveCard').onclick = saveCard;
@@ -4524,6 +4626,18 @@ document.addEventListener('keydown', e => {
 });
 
 /* ---------------- 启动 ---------------- */
+/* 按配置关掉不需要的入口，fork 的人不用改 HTML */
+function applyConfig() {
+  if (!GAME.daily) $('btnDaily').style.display = 'none';
+  if (!GAME.gallery) {
+    $('btnGallery').style.display = 'none';
+    $('btnGal2').style.display = 'none';
+  }
+  if (!GAME.card) $('btnCard').style.display = 'none';
+  if (!GAME.seedLink) $('btnLink').style.display = 'none';
+}
+
+applyConfig();
 applyLang();
 
 /* 老存档补记：已经达成的收集称号直接点亮，不弹提示 */
@@ -4535,6 +4649,17 @@ collectUnlocked(store).forEach(m => {
 if (msBackfill) saveStore();
 
 trackOnce('open');
+
+/* 人生链接：?s=<seed>&c=<国家> 直接重走某个人的一生 */
+(function bootFromLink() {
+  if (!GAME.seedLink) return;
+  let p;
+  try { p = new URLSearchParams(location.search); } catch (e) { return; }
+  const raw = parseInt(p.get('s'), 10);
+  if (!isFinite(raw) || raw <= 0) return;
+  const cid = (p.get('c') || '').toUpperCase();
+  doBirth({ seed: raw >>> 0, country: /^[A-Z]{2}$/.test(cid) ? cid : null });
+})();
 document.addEventListener('visibilitychange', function () {
   if (document.visibilityState === 'hidden') {
     tkActive += Date.now() - tkSeg;

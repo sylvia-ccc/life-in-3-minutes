@@ -232,16 +232,16 @@ const EV_COUNTRY = [
   { id:'fi_sauna', a:[20,70], w:3, t:'g', cn:['FI','SE','EE','LV','LT'], zh:'你这辈子最重要的一笔生意，是在桑拿房里谈成的。', en:'The most important deal of your life was made in a sauna.', fx:{mo:2,jy:5} },
   { id:'fi_dark', a:[10,70], w:2, t:'b', cn:['FI','SE','NO','IS','EE'], zh:'冬天有四个月见不到几次太阳，你学会了和黑暗相处。', en:'Four months of near-darkness. You learned to live with it.', fx:{jy:-5} },
   { id:'gr_island', a:[6,50], w:3, t:'n', cn:['GR','HR','IT','ES','PT'], zh:'你在一座只有两百人的岛上长大，夏天会来一万个游客。', en:'You grew up on an island of two hundred. Ten thousand tourists came each summer.', fx:{jy:4,mo:1} },
-  { id:'ro_abroad', a:[20,50], w:4, t:'n', cn:['RO','BG','MD','RS','AL','PL'], zh:'你去了西欧打工，孩子留在老家由父母带。', en:'You went to work in Western Europe. The children stayed home with your parents.', fx:{mo:2,jy:-8,hp:-3}, c:s=>s.ed<=4 },
-  { id:'rs_river', a:[14,70], w:3, t:'g', cn:['RS','HR','BA','BG','RO'], zh:'夏天全城都去河边，一直待到半夜。', en:'In summer the whole city went to the river and stayed past midnight.', fx:{jy:7} },
+  { id:'ro_abroad', a:[20,50], w:4, t:'n', cn:['RO','BG','MD','RS','PL'], zh:'你去了西欧打工，孩子留在老家由父母带。', en:'You went to work in Western Europe. The children stayed home with your parents.', fx:{mo:2,jy:-8,hp:-3}, c:s=>s.ed<=4 },
+  { id:'rs_river', a:[14,70], w:3, t:'g', cn:['RS','HR','BG','RO'], zh:'夏天全城都去河边，一直待到半夜。', en:'In summer the whole city went to the river and stayed past midnight.', fx:{jy:7} },
   { id:'cu_doctor', a:[22,40], w:3, t:'n', cn:['CU'], zh:'国家培养你当了医生，然后派你出国工作了很多年。', en:'The state trained you as a doctor, then sent you abroad to work for years.', fx:{mo:1,jy:-4,iq:3}, c:s=>s.ed>=6 },
   { id:'cu_oldcar', a:[8,70], w:3, t:'n', cn:['CU'], zh:'你家的车是 1957 年的，修了四十年，还在开。', en:'The family car was from 1957. Forty years of repairs, still running.', fx:{jy:3,mo:-1} },
   { id:'ec_galapagos', a:[18,55], w:2, t:'g', cn:['EC'], zh:'你在加拉帕戈斯做向导，见过别人一辈子见不到的东西。', en:'You guided tours in the Galápagos and saw things most people never will.', fx:{jy:9,iq:3,mo:1} },
   { id:'gt_maya', a:[6,50], w:3, t:'n', cn:['GT','MX','PE','BO'], zh:'你祖母只说玛雅语，你只听得懂一半。', en:'Your grandmother spoke only Mayan. You understood half of it.', fx:{jy:3,iq:2} },
   { id:'bo_altitude', a:[5,60], w:3, t:'n', cn:['BO','PE','EC'], zh:'你在四千米的高原上长大，跑两步就喘。', en:'You grew up at four thousand metres. Two steps and you were gasping.', fx:{hp:-3,jy:2} },
   { id:'uy_football', a:[8,60], w:3, t:'g', cn:['UY','AR','BR'], zh:'这个国家只有三百万人，却拿过世界冠军。', en:'Three million people, and a world cup.', fx:{jy:8} },
-  { id:'jm_reggae', a:[6,60], w:3, t:'g', cn:['JM','BB','TT'], zh:'你家的收音机永远放着雷鬼，邻居从不抱怨。', en:'The radio always played reggae. The neighbours never complained.', fx:{jy:7} },
-  { id:'pg_tribe', a:[5,60], w:3, t:'n', cn:['PG','FJ','SB','VU'], zh:'你来自一个有一千种语言的岛，村里人靠海和森林活着。', en:'You came from an island of a thousand languages. The village lived off the sea and the forest.', fx:{hp:3,jy:3} },
+  { id:'jm_reggae', a:[6,60], w:3, t:'g', cn:['JM','TT'], zh:'你家的收音机永远放着雷鬼，邻居从不抱怨。', en:'The radio always played reggae. The neighbours never complained.', fx:{jy:7} },
+  { id:'pg_tribe', a:[5,60], w:3, t:'n', cn:['PG','FJ'], zh:'你来自一个有一千种语言的岛，村里人靠海和森林活着。', en:'You came from an island of a thousand languages. The village lived off the sea and the forest.', fx:{hp:3,jy:3} },
 ];
 
 const EV_TRAIT = [

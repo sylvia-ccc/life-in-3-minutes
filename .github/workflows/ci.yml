@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 校验内容数据
+        run: node tools/validate.js
+
+      - name: 引擎不变量测试
+        run: node --test tools/test.js
+
+      - name: 构建单文件版
+        run: node tools/build.js
+
+      - name: 检查构建产物是否与源码同步
+        run: |
+          if ! git diff --quiet -- dist/; then
+            echo "::error::dist/ 与源码不一致。请在本地运行 node tools/build.js 后一起提交。"
+            git diff --stat -- dist/
+            exit 1
+          fi
+
+      - name: 检查是否有未通过校验的分位表
+        run: |
+          node -e "
+          const fs=require('fs'),vm=require('vm');
+          const ctx={console,Math,Date}; vm.createContext(ctx);
+          for (const f of ['js/config.js','js/data-countries.js','js/data-events.js','js/data-dist.js','js/engine.js'])
+            vm.runInContext(fs.readFileSync(f,'utf8'),ctx,{filename:f});
+          const D=vm.runInContext('DIST',ctx);
+          if(!D||!D.score||D.score.length!==101){console.error('分位表缺失或长度不对');process.exit(1);}
+          console.log('分位表 OK，中位分', D.score[50]);
+          "

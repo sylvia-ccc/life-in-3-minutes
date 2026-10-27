@@ -158,7 +158,7 @@ const FAMILY_LINE = [
 ];
 
 /* ---------------- 存档 ---------------- */
-const LS = 'life3m.v1';
+const LS = GAME.storageKey;
 const LS_V0 = 'oieb.v1';
 function loadStore() {
   try {
@@ -173,7 +173,7 @@ function loadStore() {
   } catch (e) { return { lang: null, runs: [], countries: {}, tiers: {}, ach: {}, milestones: {}, best: {} }; }
 }
 let store = loadStore();
-let lang = store.lang || 'zh';
+let lang = store.lang || GAME.lang;
 function saveStore() { try { localStorage.setItem(LS, JSON.stringify(store)); } catch (e) {} }
 
 /* ---------------- 运行时状态 ---------------- */
@@ -192,8 +192,8 @@ const DELAY = { 1: 1000, 2: 470, 4: 210, 12: 65 };
 /* ---------------- 埋点（访问统计） ----------------
    只在 http(s) 下上报；单文件离线版（file://）自动静默。
    服务端只存加盐 IP 哈希，不存原始 IP。 */
-const SITE = 'game.workagentpro.com';
-const TRACK_ON = location.protocol === 'http:' || location.protocol === 'https:';
+const SITE = GAME.site;
+const TRACK_ON = GAME.track && (location.protocol === 'http:' || location.protocol === 'https:');
 let SID = '';
 try {
   SID = sessionStorage.getItem('life3m.sid') || '';
@@ -285,7 +285,7 @@ function toast(msg, tag) {
 /* ---------------- 语言 ---------------- */
 function applyLang() {
   document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
-  document.title = lang === 'zh' ? '模拟人生-3分钟看完一生' : 'Life in 3 Minutes — Your Whole Life, Start to Finish';
+  document.title = lang === 'zh' ? GAME.title : GAME.titleEn + ' — Your Whole Life, Start to Finish';
   $('brandTitle').textContent = t('brand');
   $('brandSub').textContent = t('brandSub');
   $('galLabel').textContent = t('gal');
@@ -322,6 +322,7 @@ function applyLang() {
     ? (lang === 'zh' ? '已连续投胎 ' + sk + ' 天' : sk + '-day streak')
     : '';
   $('shareBtn').textContent = t('share');
+  $('linkBtn').textContent = lang === 'zh' ? '复制人生链接' : 'Copy life link';
   $('gal2Btn').textContent = t('gal');
   $('gTitle').textContent = t('gTitle');
   $('backBtn').textContent = t('back');
@@ -905,31 +906,10 @@ function replayAlt(forkIdx, altIdx) {
   const fork = (src.choiceLog || [])[forkIdx];
   if (!fork) return;
 
-  const s = E.newLife(src.seed, { avoid: null, country: src.pinned || null });
-  s.seed = src.seed;
+  const picks = (src.choiceLog || []).map(c => c.picked);
+  const s = E.replay(src.seed, picks, forkIdx, altIdx, src.pinned || null);
   s.daily = false;
   s.pinned = src.pinned || null;
-
-  let guard = 0, ci = 0;
-  while (s.alive && guard++ < 130) {
-    E.tick(s);
-    if (s.pending) {
-      let pick;
-      if (ci < forkIdx) pick = src.choiceLog[ci] ? src.choiceLog[ci].picked : 0;
-      else if (ci === forkIdx) pick = altIdx;
-      else pick = Math.floor(Math.random() * s.pending.ch.length);
-      if (pick >= s.pending.ch.length) pick = s.pending.ch.length - 1;
-      E.resolveChoice(s, pick);
-      /* 分叉那一刻之后，世界重新掷骰子——否则有些选择不消耗随机数，
-         后面的事件流会和原人生一模一样，等于没换路 */
-      if (ci === forkIdx) {
-        const h = (src.seed ^ Math.imul(forkIdx + 1, 2654435761) ^ Math.imul(altIdx + 1, 40503)) >>> 0;
-        E._rng.f = E.mulberry32(h);
-      }
-      ci++;
-    }
-  }
-  E.finalize(s);
   s.cf = {
     age: fork.age,
     label: fork.opts[altIdx]
@@ -1012,23 +992,58 @@ function shareLife() {
       '活了 ' + s.age + ' 岁，净财富 ' + E.fmtMoney(s.money, 'zh') + '，评级 ' + E.grade(s.pct).k + '\n' +
       '命运稀有度 ' + rarityStr(s.rarity) + '\n' +
       (s.jy >= 70 ? '一生尚算温暖。' : s.jy >= 45 ? '不好不坏的一生。' : '这一生太累了。') + '\n' +
-      '你也来投一次 → game.workagentpro.com'
+      '这是我这一生的手牌，你来打打看 → ' + lifeLink()
     : '《Life in 3 Minutes》' + t('lifeN').replace('{n}', runIndex) + '\n' +
       s.c.flag + ' ' + s.c.en + ' · ' + E.TIERS[s.tier].en + ' · ' + edu[1] + '\n' +
       tg + '\n' +
       'Lived ' + s.age + ' years, net worth ' + E.fmtMoney(s.money, 'en') + ', grade ' + E.grade(s.pct).k + '\n' +
       'Fate rarity ' + rarityStr(s.rarity) + '\n' +
       (s.jy >= 70 ? 'A warm life, all told.' : s.jy >= 45 ? 'Neither good nor bad.' : 'It was exhausting.') + '\n' +
-      'Roll your own life → game.workagentpro.com';
+      'This was my starting hand. Try it → ' + lifeLink();
   if (navigator.clipboard) {
     navigator.clipboard.writeText(txt).then(() => toast(t('copied')), () => toast('×'));
   }
 }
 
+/* 复制文本：优先用 clipboard API，失败就退回老办法 */
+function copyText(txt, okMsg) {
+  const done = () => toast(okMsg);
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(txt).then(done, () => toast('×'));
+    return;
+  }
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = txt;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    ta.remove();
+    done();
+  } catch (e) { toast('×'); }
+}
+
+/* 人生链接：把种子带在 URL 里，别人点开就是同一手牌 */
+function lifeLink() {
+  if (!S || S.seed === undefined) return '';
+  return GAME.url + '/?s=' + S.seed + (S.pinned ? '&c=' + S.pinned : '');
+}
+
+function copyLifeLink() {
+  const url = lifeLink();
+  if (!url) return;
+  copyText(url, lang === 'zh'
+    ? '链接已复制，别人点开会拿到同一手牌'
+    : 'Link copied — same starting hand');
+}
+
 /* ---------------- 人生卡片 ---------------- */
 const CARD_W = 1080, CARD_H = 1440;
 
-/* 固定二维码（指向 https://game.workagentpro.com），离线预生成，避免运行时引入编码器 */
+/* 固定二维码（指向 GAME.qrUrl），离线预生成，避免运行时引入编码器 */
+const QR_TARGET = 'https://game.workagentpro.com';
 const CARD_QR = [
   '11111110110011110100001111111',
   '10000010000000010000001000001',
@@ -1285,6 +1300,11 @@ function drawCard() {
     W / 2, 1226, { font: '11.5px ' + SANS, color: 'rgba(27,26,23,0.40)', sp: 3 });
 
   /* 二维码 + 网址：图片被转发出去后，扫码就能直接进来 */
+  const showQR = GAME.qr && GAME.qrUrl === QR_TARGET;
+  if (!showQR) {
+    text(SITE, W / 2, 1282, { font: '16px ' + SANS, color: 'rgba(169,118,44,0.92)', sp: 2.5 });
+    return;
+  }
   const qs = 120, qx = 366, qy = 1256;
   g.fillStyle = '#ffffff';
   g.fillRect(qx - 9, qy - 9, qs + 18, qs + 18);
@@ -1449,6 +1469,7 @@ $('forkList').onclick = e => {
   replayAlt(parseInt(btn.dataset.fork, 10), parseInt(btn.dataset.opt, 10));
 };
 $('btnShare').onclick = shareLife;
+$('btnLink').onclick = copyLifeLink;
 $('btnCard').onclick = openCard;
 $('cardClose').onclick = closeCard;
 $('btnSaveCard').onclick = saveCard;
@@ -1510,6 +1531,18 @@ document.addEventListener('keydown', e => {
 });
 
 /* ---------------- 启动 ---------------- */
+/* 按配置关掉不需要的入口，fork 的人不用改 HTML */
+function applyConfig() {
+  if (!GAME.daily) $('btnDaily').style.display = 'none';
+  if (!GAME.gallery) {
+    $('btnGallery').style.display = 'none';
+    $('btnGal2').style.display = 'none';
+  }
+  if (!GAME.card) $('btnCard').style.display = 'none';
+  if (!GAME.seedLink) $('btnLink').style.display = 'none';
+}
+
+applyConfig();
 applyLang();
 
 /* 老存档补记：已经达成的收集称号直接点亮，不弹提示 */
@@ -1521,6 +1554,17 @@ collectUnlocked(store).forEach(m => {
 if (msBackfill) saveStore();
 
 trackOnce('open');
+
+/* 人生链接：?s=<seed>&c=<国家> 直接重走某个人的一生 */
+(function bootFromLink() {
+  if (!GAME.seedLink) return;
+  let p;
+  try { p = new URLSearchParams(location.search); } catch (e) { return; }
+  const raw = parseInt(p.get('s'), 10);
+  if (!isFinite(raw) || raw <= 0) return;
+  const cid = (p.get('c') || '').toUpperCase();
+  doBirth({ seed: raw >>> 0, country: /^[A-Z]{2}$/.test(cid) ? cid : null });
+})();
 document.addEventListener('visibilitychange', function () {
   if (document.visibilityState === 'hidden') {
     tkActive += Date.now() - tkSeg;

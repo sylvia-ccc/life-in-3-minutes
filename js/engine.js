@@ -669,8 +669,36 @@ function grade(pct) {
   return { k:'E', zh:'苦难', en:'Harsh' };
 }
 
+/* ---------- 回溯 ----------
+   从某个岔路重走一生：前面的选择按 picks 复现，到 forkIdx 换成 altIdx，之后随机。
+   分叉那一刻会重新掷骰子——很多选择本身不消耗随机数，
+   不重掷的话后面的事件流会和原来一模一样，等于没换路。 */
+function replay(seed, picks, forkIdx, altIdx, country) {
+  const s = newLife(seed, { country: country || null });
+  s.seed = seed;
+  let guard = 0, ci = 0;
+  while (s.alive && guard++ < 130) {
+    tick(s);
+    if (s.pending) {
+      let pick;
+      if (ci < forkIdx) pick = (picks && picks[ci] !== undefined) ? picks[ci] : 0;
+      else if (ci === forkIdx) pick = altIdx;
+      else pick = Math.floor(rnd() * s.pending.ch.length);
+      if (pick >= s.pending.ch.length) pick = s.pending.ch.length - 1;
+      resolveChoice(s, pick);
+      if (ci === forkIdx) {
+        const h = (seed ^ Math.imul(forkIdx + 1, 2654435761) ^ Math.imul(altIdx + 1, 40503)) >>> 0;
+        R.f = mulberry32(h);
+      }
+      ci++;
+    }
+  }
+  finalize(s);
+  return s;
+}
+
 const API = {
-  newLife, tick, resolveChoice, finalize, fmtMoney, grade, percentile, computeRarity,
+  newLife, tick, resolveChoice, finalize, replay, fmtMoney, grade, percentile, computeRarity,
   EDU_NAME, ACH_LIST, TIERS, setDist(d) { DIST = d; }, getDist() { return DIST; },
   _rng: R, mulberry32,
 };
