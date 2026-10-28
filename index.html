@@ -186,6 +186,8 @@
           <button class="btn-ghost" id="btnGal2"><span id="gal2Btn">命运图鉴</span></button>
         </div>
       </div>
+      <!-- 结局页有 2~3 屏，看完底部想回头看评级时不用手动滚 -->
+      <button class="to-top" id="btnTop" hidden><span id="topBtn">回到顶部</span></button>
     </section>
 
     <!-- 图鉴 -->
@@ -232,6 +234,18 @@
       <div class="card-actions">
         <button class="btn-primary" id="btnSaveCard"><span id="cardSave">保存图片</span></button>
         <span class="card-hint" id="cardHint">长按图片也可以直接保存</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 确认弹窗：中途重投会丢掉正在跑的人生，先问一句 -->
+  <div class="overlay" id="ovConfirm">
+    <div class="confirm">
+      <div class="ck" id="cfLabel">重 新 投 胎</div>
+      <h3 id="cfText"></h3>
+      <div class="cf-actions">
+        <button class="btn-ghost" id="cfNo"><span id="cfNoBtn">继续这一生</span></button>
+        <button class="btn-primary" id="cfYes"><span id="cfYesBtn">丢掉，重新投</span></button>
       </div>
     </div>
   </div>

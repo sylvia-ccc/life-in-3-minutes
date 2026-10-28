@@ -8,6 +8,8 @@
 
 **[在线体验 →](https://game.workagentpro.com)** ｜ [单文件版](dist/life-in-3-minutes.html)（下载后双击即玩，不需要联网）
 
+![15 秒看完一生](docs/preview.gif)
+
 ![开始界面](docs/01-start.png)
 
 ---

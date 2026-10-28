@@ -274,6 +274,14 @@ function show(id) {
   $(id).classList.add('active');
   currentScreen = id;
   if (id === 'scrEnd' || id === 'scrGallery') $(id).scrollTop = 0;
+  syncTopBtn();
+}
+/* 结局页有 2~3 屏，滚下去之后给一个回顶的出口 */
+function syncTopBtn() {
+  const btn = $('btnTop');
+  if (!btn) return;
+  const on = currentScreen === 'scrEnd' && $('scrEnd').scrollTop > 320;
+  btn.hidden = !on;
 }
 function toast(msg, tag) {
   const d = document.createElement('div');
@@ -294,6 +302,7 @@ function applyLang() {
   $('brandSub').textContent = t('brandSub');
   $('galLabel').textContent = t('gal');
   $('btnLang').textContent = lang === 'zh' ? 'EN' : '中';
+  $('topBtn').textContent = lang === 'zh' ? '回到顶部' : 'Back to top';
   $('wl1').textContent = t('wl1');
   $('wl2').textContent = t('wl2');
   $('startTitle').innerHTML = t('startTitle');
@@ -372,6 +381,7 @@ function doBirth(opts) {
   if (!opts.fromLink) CHALLENGE = null;
   clearTimer();
   trackOnce('start');
+
   const seed = (opts.seed !== undefined) ? opts.seed
     : (Math.floor(Math.random() * 4294967296) >>> 0);
   S = E.newLife(seed, {
@@ -384,6 +394,31 @@ function doBirth(opts) {
   runIndex = (store.runs.length || 0) + 1;
   renderBirth();
   show('scrBirth');
+}
+
+/* 中途重投会丢掉正在跑的这一局，先问一句再动手。
+   只在「人生正在屏幕上跑」时拦——那时丢的是真东西。
+   开始页、出生页、结局页重投没有损失，直接执行。 */
+function requestBirth() {
+  if (currentScreen === 'scrStart') return;
+  const running = currentScreen === 'scrPlay' && S && S.alive && !S.pending;
+  if (!running) { doBirth(); return; }
+  $('cfLabel').textContent = lang === 'zh' ? '重 新 投 胎' : 'S T A R T  O V E R';
+  $('cfText').textContent = lang === 'zh'
+    ? '这一生才走到 ' + S.age + ' 岁。丢掉重来？'
+    : 'This life is only ' + S.age + ' years in. Start over and lose it?';
+  $('cfNoBtn').textContent = lang === 'zh' ? '继续这一生' : 'Keep this life';
+  $('cfYesBtn').textContent = lang === 'zh' ? '丢掉，重新投' : 'Lose it, re-roll';
+  $('ovConfirm').classList.add('show');
+  paused = true; clearTimer(); setPauseIcon();
+}
+function closeConfirm(yes) {
+  $('ovConfirm').classList.remove('show');
+  if (yes) { doBirth(); return; }
+  /* 取消：人生还在跑就把游戏续上 */
+  if (S && S.alive && currentScreen === 'scrPlay' && !S.pending) {
+    paused = false; setPauseIcon(); schedule();
+  }
 }
 
 function renderBirth() {
@@ -1529,6 +1564,18 @@ $('ovCard').onclick = e => { if (e.target === $('ovCard')) closeCard(); };
 $('btnPause').onclick = togglePause;
 $('btnLang').onclick = () => { lang = lang === 'zh' ? 'en' : 'zh'; applyLang(); };
 
+/* 回到顶部：结局页滚下去才出现，点一下回顶部 */
+$('btnTop').onclick = () => {
+  $('scrEnd').scrollTo({ top: 0, behavior: 'smooth' });
+  syncTopBtn();
+};
+$('scrEnd').addEventListener('scroll', syncTopBtn, { passive: true });
+
+/* 中途重投的确认框 */
+$('cfYes').onclick = () => closeConfirm(true);
+$('cfNo').onclick = () => closeConfirm(false);
+$('ovConfirm').onclick = e => { if (e.target === $('ovConfirm')) closeConfirm(false); };
+
 $('btnFullLog').onclick = () => {
   const box = $('fullLog');
   if (box.style.display === 'block') {
@@ -1567,11 +1614,13 @@ document.querySelectorAll('.speed button').forEach(b => {
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     if ($('ovCard').classList.contains('show')) { closeCard(); return; }
+    if ($('ovConfirm').classList.contains('show')) { closeConfirm(false); return; }
   }
+  if ($('ovConfirm').classList.contains('show')) return;
   if (e.key === ' ' || e.code === 'Space') {
     if (currentScreen === 'scrPlay') { e.preventDefault(); togglePause(); }
   } else if (e.key === 'r' || e.key === 'R') {
-    if (currentScreen !== 'scrStart') doBirth();
+    requestBirth();
   } else if (e.key === 'Enter') {
     if (currentScreen === 'scrStart') doBirth();
     else if (currentScreen === 'scrBirth') beginLife();
