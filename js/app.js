@@ -282,6 +282,8 @@ function syncTopBtn() {
   if (!btn) return;
   const on = currentScreen === 'scrEnd' && $('scrEnd').scrollTop > 320;
   btn.hidden = !on;
+  /* toast 和按钮都在右下角，按钮出现时让 toast 再上移一档 */
+  document.body.classList.toggle('has-top', on);
 }
 function toast(msg, tag) {
   const d = document.createElement('div');

@@ -569,18 +569,23 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .cf-actions { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
 
 /* ---------- 回到顶部 ---------- */
+/* 固定在右下角，不能用 sticky：sticky 会压在结局页底部的按钮区上 */
 .to-top {
-  position: sticky; bottom: 18px; margin: 18px auto 0;
+  position: fixed; right: 18px; bottom: 78px; z-index: 55;
   display: inline-flex; align-items: center; gap: 7px;
   padding: 9px 20px; border-radius: 30px;
-  border: 1px solid var(--line); background: rgba(255,255,255,.9);
+  border: 1px solid var(--line); background: rgba(255,255,255,.94);
   backdrop-filter: blur(6px);
   font-size: 12.5px; color: var(--ink-2); cursor: pointer; transition: .18s;
-  box-shadow: 0 6px 18px -10px rgba(0,0,0,.35);
+  box-shadow: 0 6px 18px -8px rgba(0,0,0,.35);
 }
 .to-top:hover { border-color: var(--ink-3); color: var(--ink); }
 .to-top[hidden] { display: none; }
-@media (max-width: 760px) { .to-top { margin-bottom: 4px; } }
+/* toast 在右下角，按钮上移让位 */
+@media (max-width: 760px) { .to-top { right: 12px; bottom: 68px; } }
+/* 回到顶部按钮出现时，toast 再让一档，避免两块贴在一起 */
+body.has-top #toasts { bottom: 124px; }
+@media (max-width: 760px) { body.has-top #toasts { bottom: 112px; } }
 
 /* ---------- 与上一次对比 ---------- */
 .delta-row {
@@ -3449,6 +3454,8 @@ function syncTopBtn() {
   if (!btn) return;
   const on = currentScreen === 'scrEnd' && $('scrEnd').scrollTop > 320;
   btn.hidden = !on;
+  /* toast 和按钮都在右下角，按钮出现时让 toast 再上移一档 */
+  document.body.classList.toggle('has-top', on);
 }
 function toast(msg, tag) {
   const d = document.createElement('div');
