@@ -162,11 +162,28 @@ const LS = GAME.storageKey;
 const LS_V0 = 'oieb.v1';
 function loadStore() {
   try {
-    /* 早期版本用过另一个 key，读到就迁过来，别让老玩家的图鉴白攒 */
+    /* 早期版本用过另一个 key，读到就迁过来，别让老玩家的图鉴白攒。
+       注意判空条件：不能只看「新 key 不存在」——
+       只要访问过一次新版就会留下一个空存档，之后再切回旧版玩，
+       数据就永远迁不过来了。所以「新 key 是空的」也要迁。 */
     let raw = localStorage.getItem(LS);
-    if (!raw) {
+    let parsed = null;
+    try { parsed = raw ? JSON.parse(raw) : null; } catch (e) { parsed = null; }
+    const isEmpty = !parsed
+      || (!parsed.runs || !parsed.runs.length)
+        && !Object.keys(parsed.countries || {}).length
+        && !Object.keys(parsed.ach || {}).length;
+    if (isEmpty) {
       const legacy = localStorage.getItem(LS_V0);
-      if (legacy) { raw = legacy; localStorage.setItem(LS, legacy); }
+      if (legacy) {
+        try {
+          const lp = JSON.parse(legacy);
+          if (lp && ((lp.runs && lp.runs.length) || Object.keys(lp.countries || {}).length || Object.keys(lp.ach || {}).length)) {
+            raw = legacy;
+            localStorage.setItem(LS, legacy);
+          }
+        } catch (e) { /* 老存档坏了就用新的 */ }
+      }
     }
     const s = JSON.parse(raw || '{}');
     return Object.assign({ lang: null, runs: [], countries: {}, tiers: {}, ach: {}, milestones: {}, best: {} }, s);
@@ -413,6 +430,8 @@ function requestBirth() {
   $('cfYesBtn').textContent = lang === 'zh' ? '丢掉，重新投' : 'Lose it, re-roll';
   $('ovConfirm').classList.add('show');
   paused = true; clearTimer(); setPauseIcon();
+  /* 焦点必须进对话框，否则键盘用户会 Tab 到被遮住的背景元素上 */
+  $('cfNo').focus();
 }
 function closeConfirm(yes) {
   $('ovConfirm').classList.remove('show');

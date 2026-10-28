@@ -33,6 +33,8 @@
   --line-2:     #e8e2d6;
   --gold:       #a9762c;
   --gold-soft:  #c99a4e;
+  /* 小号文字专用的深金：--gold 在纸色上只有 3.8:1，达不到 AA 的 4.5:1 */
+  --gold-text:  #8a5d18;
   --jade:       #3f7455;
   --clay:       #a34a3c;
   --slate:      #5a6b78;
@@ -120,7 +122,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .start-inner { max-width: 620px; position: relative; z-index: 1; }
 .orn {
   display: flex; align-items: center; justify-content: center; gap: 10px;
-  margin-bottom: 30px; color: var(--gold); font-size: 9px; letter-spacing: .5em;
+  margin-bottom: 30px; color: var(--gold-text); font-size: 9px; letter-spacing: .5em;
 }
 .orn::before, .orn::after {
   content: ''; width: 54px; height: 1px; background: linear-gradient(90deg, transparent, var(--gold-soft));
@@ -130,7 +132,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   font-family: var(--serif); font-size: clamp(38px, 6vw, 62px); font-weight: 500;
   letter-spacing: .04em; line-height: 1.12; margin-bottom: 6px;
 }
-.start h2 em { font-style: normal; color: var(--gold); }
+.start h2 em { font-style: normal; color: var(--gold-text); }
 .start .sub {
   font-family: var(--serif); font-size: 15px; color: var(--ink-3); letter-spacing: .22em;
   margin-bottom: 34px; text-transform: uppercase;
@@ -142,7 +144,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   display: flex; align-items: center; justify-content: center; gap: 10px;
   font-size: 11.5px; color: var(--ink-3); letter-spacing: .12em; margin-bottom: 26px;
 }
-.worldline b { font-family: var(--mono); color: var(--gold); font-weight: 600; letter-spacing: 0; }
+.worldline b { font-family: var(--mono); color: var(--gold-text); font-weight: 600; letter-spacing: 0; }
 
 .btn-primary {
   display: inline-flex; align-items: center; gap: 11px;
@@ -170,9 +172,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   transition: .18s;
 }
 .btn-daily:hover { border-color: var(--gold); background: rgba(169,118,44,.1); }
-.btn-daily b { font-size: 13px; letter-spacing: .14em; color: var(--gold); font-weight: 500; }
+.btn-daily b { font-size: 13px; letter-spacing: .14em; color: var(--gold-text); font-weight: 500; }
 .btn-daily span { font-size: 10.5px; color: var(--ink-3); letter-spacing: .04em; }
-.streak { margin-top: 12px; font-size: 11.5px; color: var(--gold); letter-spacing: .1em; }
+.streak { margin-top: 12px; font-size: 11.5px; color: var(--gold-text); letter-spacing: .1em; }
 .streak:empty { display: none; }
 
 .hint {
@@ -227,7 +229,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   margin-top: 26px; padding-top: 18px; border-top: 1px dashed var(--line);
   font-size: 12px; color: var(--ink-3); line-height: 1.9;
 }
-.rarity-line b { font-family: var(--mono); font-size: 14px; color: var(--gold); font-weight: 600; }
+.rarity-line b { font-family: var(--mono); font-size: 14px; color: var(--gold-text); font-weight: 600; }
 .bc-actions { margin-top: 26px; display: flex; gap: 10px; }
 
 /* ---------- 游戏主界面 ---------- */
@@ -284,7 +286,8 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .logbar .spacer { flex: 1; }
 .speed { display: flex; gap: 2px; background: rgba(27,26,23,.045); padding: 2px; border-radius: 7px; }
 .speed button {
-  font-size: 11px; padding: 4px 9px; border-radius: 5px; color: var(--ink-3);
+  /* ink-3 在这个浅灰底上只有 4.44:1，差一点点不到 AA；ink-2 是 8.6:1 */
+  font-size: 11px; padding: 4px 9px; border-radius: 5px; color: var(--ink-2);
   font-family: var(--mono); transition: .15s;
 }
 .speed button.on { background: var(--paper-2); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.08); }
@@ -343,7 +346,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   transition: transform .34s cubic-bezier(.2,.8,.25,1);
 }
 .overlay.show .choice { transform: none; }
-.choice .ck { font-size: 10.5px; letter-spacing: .26em; color: var(--gold); text-transform: uppercase; margin-bottom: 12px; }
+.choice .ck { font-size: 10.5px; letter-spacing: .26em; color: var(--gold-text); text-transform: uppercase; margin-bottom: 12px; }
 .choice h3 {
   font-family: var(--serif); font-size: 21px; font-weight: 500; line-height: 1.55; margin-bottom: 22px;
 }
@@ -380,7 +383,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   display: grid; grid-template-columns: 1fr 1fr; gap: 2px 20px; text-align: left;
 }
 .rarity-big .k { font-size: 10px; letter-spacing: .16em; color: var(--ink-3); text-transform: uppercase; }
-.rarity-big .v { font-family: var(--mono); font-size: 16px; color: var(--gold); margin-top: 2px; }
+.rarity-big .v { font-family: var(--mono); font-size: 16px; color: var(--gold-text); margin-top: 2px; }
 .rarity-big .v.small { font-size: 12px; color: var(--ink-2); font-family: var(--sans); line-height: 1.5; }
 
 .end-grid {
@@ -394,7 +397,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .ach-row { display: flex; flex-wrap: wrap; gap: 7px; justify-content: center; margin-top: 18px; }
 .ach {
   font-size: 11.5px; padding: 5px 11px; border-radius: 20px;
-  background: rgba(169,118,44,.08); border: 1px solid rgba(169,118,44,.25); color: var(--gold);
+  background: rgba(169,118,44,.08); border: 1px solid rgba(169,118,44,.25); color: var(--gold-text);
 }
 .ach.off { background: transparent; border-color: var(--line); color: var(--ink-3); opacity: .55; }
 .ach-count {
@@ -425,7 +428,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   font-size: 12.5px; line-height: 1.8; color: var(--ink-2);
   border-top: 1px solid var(--line); padding-top: 16px;
 }
-.end-next b { color: var(--gold); font-weight: 600; }
+.end-next b { color: var(--gold-text); font-weight: 600; }
 .end-next .nx-k { font-size: 10px; letter-spacing: .18em; color: var(--ink-3); text-transform: uppercase; display: block; margin-bottom: 4px; }
 .end-next .nx-bar { height: 3px; background: rgba(27,26,23,.08); border-radius: 2px; overflow: hidden; margin: 9px auto 0; max-width: 220px; }
 .end-next .nx-bar i { display: block; height: 100%; background: var(--gold); }
@@ -443,7 +446,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .galprog i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--gold-soft), var(--gold)); transition: width .5s ease; }
 .galhint { font-size: 11px; color: var(--ink-3); letter-spacing: .06em; margin-bottom: 16px; }
 .nowtitle {
-  font-size: 10.5px; letter-spacing: .1em; color: var(--gold);
+  font-size: 10.5px; letter-spacing: .1em; color: var(--gold-text);
   border: 1px solid rgba(169,118,44,.35); background: rgba(169,118,44,.06);
   border-radius: 20px; padding: 2px 10px; white-space: nowrap;
 }
@@ -459,7 +462,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 .mile.on { opacity: 1; border-color: rgba(169,118,44,.42); background: rgba(169,118,44,.05); }
 .mile .mn { font-family: var(--serif); font-size: 14.5px; color: var(--ink); }
-.mile.on .mn { color: var(--gold); }
+.mile.on .mn { color: var(--gold-text); }
 .mile .md { font-family: var(--mono); font-size: 10px; color: var(--ink-3); margin-top: 3px; }
 .flags { display: grid; grid-template-columns: repeat(auto-fill, minmax(102px, 1fr)); gap: 7px; }
 .flagcell {
@@ -542,7 +545,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   font-size: 11px; color: var(--ink-3); letter-spacing: .06em;
 }
 .meta-strip b { font-family: var(--mono); color: var(--ink-2); font-weight: 600; font-size: 12px; }
-.meta-strip .sep { color: var(--line); }
+/* 分隔点原来用 --line（边框色），对比度只有 1.28:1，弱视用户基本看不见。
+   换成 ink-3 级别：仍然低调，但看得清 */
+.meta-strip .sep { color: var(--ink-3); }
 
 /* ---------- 细节修正 ---------- */
 .start h2 { text-wrap: balance; }
@@ -564,7 +569,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   transition: transform .34s cubic-bezier(.2,.8,.25,1);
 }
 .overlay.show .confirm { transform: none; }
-.confirm .ck { font-size: 10.5px; letter-spacing: .26em; color: var(--gold); text-transform: uppercase; margin-bottom: 12px; }
+.confirm .ck { font-size: 10.5px; letter-spacing: .26em; color: var(--gold-text); text-transform: uppercase; margin-bottom: 12px; }
 .confirm h3 { font-family: var(--serif); font-size: 19px; font-weight: 500; line-height: 1.6; margin-bottom: 24px; }
 .cf-actions { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
 
@@ -606,7 +611,7 @@ body.has-top #toasts { bottom: 124px; }
   border: 1px solid var(--line); background: rgba(169,118,44,.05);
   border-radius: 20px; padding: 4px 12px; white-space: nowrap;
 }
-.end-daily { margin-top: 12px; font-size: 12px; color: var(--gold); letter-spacing: .06em; }
+.end-daily { margin-top: 12px; font-size: 12px; color: var(--gold-text); letter-spacing: .06em; }
 .end-daily:empty { display: none; }
 
 /* ---------- 未走的路 ---------- */
@@ -654,7 +659,7 @@ body.has-top #toasts { bottom: 124px; }
   font-size: 13px; color: var(--ink-2); line-height: 1.75;
 }
 .end-alt.show { display: block; }
-.end-alt b { color: var(--gold); font-weight: 600; }
+.end-alt b { color: var(--gold-text); font-weight: 600; }
 .end-alt .back {
   display: inline-block; margin-left: 12px; font-size: 11.5px; color: var(--ink-3);
   border-bottom: 1px solid var(--line); cursor: pointer; white-space: nowrap;
@@ -663,7 +668,7 @@ body.has-top #toasts { bottom: 124px; }
 .alt-go {
   display: inline-block; margin-top: 6px; padding: 3px 12px; border-radius: 20px;
   border: 1px solid rgba(169,118,44,.4); background: rgba(169,118,44,.06);
-  font-size: 11px; color: var(--gold); letter-spacing: .08em; cursor: pointer; transition: .16s;
+  font-size: 11px; color: var(--gold-text); letter-spacing: .08em; cursor: pointer; transition: .16s;
 }
 .alt-go:hover { background: rgba(169,118,44,.16); border-color: var(--gold); }
 
@@ -745,7 +750,7 @@ body.has-top #toasts { bottom: 124px; }
 
 /* ---------- 同牌对决 ---------- */
 .bc-duel {
-  font-size: 11.5px; letter-spacing: .08em; color: var(--gold);
+  font-size: 11.5px; letter-spacing: .08em; color: var(--gold-text);
   border: 1px solid rgba(169,118,44,.3); background: rgba(169,118,44,.06);
   border-radius: 20px; padding: 4px 14px; margin: 10px auto 0; display: inline-block;
 }
@@ -756,7 +761,7 @@ body.has-top #toasts { bottom: 124px; }
   font-size: 13px; color: var(--ink-2); line-height: 1.8;
 }
 .end-duel:empty { display: none; }
-.end-duel .win { color: var(--gold); font-weight: 600; }
+.end-duel .win { color: var(--gold-text); font-weight: 600; }
 .end-duel .lose { color: var(--ink-3); }
 .end-duel .vs { font-family: var(--mono); font-size: 11px; color: var(--ink-3); margin: 0 8px; }
 
@@ -993,7 +998,7 @@ body.has-top #toasts { bottom: 124px; }
   </div>
 
   <!-- 确认弹窗：中途重投会丢掉正在跑的人生，先问一句 -->
-  <div class="overlay" id="ovConfirm">
+  <div class="overlay" id="ovConfirm" role="dialog" aria-modal="true" aria-labelledby="cfText">
     <div class="confirm">
       <div class="ck" id="cfLabel">重 新 投 胎</div>
       <h3 id="cfText"></h3>
@@ -3334,11 +3339,28 @@ const LS = GAME.storageKey;
 const LS_V0 = 'oieb.v1';
 function loadStore() {
   try {
-    /* 早期版本用过另一个 key，读到就迁过来，别让老玩家的图鉴白攒 */
+    /* 早期版本用过另一个 key，读到就迁过来，别让老玩家的图鉴白攒。
+       注意判空条件：不能只看「新 key 不存在」——
+       只要访问过一次新版就会留下一个空存档，之后再切回旧版玩，
+       数据就永远迁不过来了。所以「新 key 是空的」也要迁。 */
     let raw = localStorage.getItem(LS);
-    if (!raw) {
+    let parsed = null;
+    try { parsed = raw ? JSON.parse(raw) : null; } catch (e) { parsed = null; }
+    const isEmpty = !parsed
+      || (!parsed.runs || !parsed.runs.length)
+        && !Object.keys(parsed.countries || {}).length
+        && !Object.keys(parsed.ach || {}).length;
+    if (isEmpty) {
       const legacy = localStorage.getItem(LS_V0);
-      if (legacy) { raw = legacy; localStorage.setItem(LS, legacy); }
+      if (legacy) {
+        try {
+          const lp = JSON.parse(legacy);
+          if (lp && ((lp.runs && lp.runs.length) || Object.keys(lp.countries || {}).length || Object.keys(lp.ach || {}).length)) {
+            raw = legacy;
+            localStorage.setItem(LS, legacy);
+          }
+        } catch (e) { /* 老存档坏了就用新的 */ }
+      }
     }
     const s = JSON.parse(raw || '{}');
     return Object.assign({ lang: null, runs: [], countries: {}, tiers: {}, ach: {}, milestones: {}, best: {} }, s);
@@ -3585,6 +3607,8 @@ function requestBirth() {
   $('cfYesBtn').textContent = lang === 'zh' ? '丢掉，重新投' : 'Lose it, re-roll';
   $('ovConfirm').classList.add('show');
   paused = true; clearTimer(); setPauseIcon();
+  /* 焦点必须进对话框，否则键盘用户会 Tab 到被遮住的背景元素上 */
+  $('cfNo').focus();
 }
 function closeConfirm(yes) {
   $('ovConfirm').classList.remove('show');
